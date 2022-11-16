@@ -25,13 +25,6 @@ with DAG(
         bash_command='sleep 5m',
     )
 
-    trigger_sleep_3 = TriggerDagRunOperator(
-        task_id="trigger_sleep_3",
-        trigger_dag_id="bash_sleep_3",
-        wait_for_completion=True,
-        dag=dag,
-    )
-
     end_dummy = DummyOperator(task_id="end")
 
 start_dummy >> sleep_3 >> end_dummy

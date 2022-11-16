@@ -20,11 +20,6 @@ with DAG(
 
     start_dummy = DummyOperator(task_id="start")
 
-    sleep_1 = BashOperator(
-        task_id='sleep_1',
-        bash_command='sleep 1m',
-    )
-
     trigger_sleep_3 = TriggerDagRunOperator(
         task_id="trigger_sleep_3",
         trigger_dag_id="bash_sleep_3",
@@ -34,6 +29,6 @@ with DAG(
 
     end_dummy = DummyOperator(task_id="end")
 
-start_dummy >> sleep_1 >> trigger_sleep_3 >> end_dummy
+start_dummy >> trigger_sleep_3 >> end_dummy
 
 
