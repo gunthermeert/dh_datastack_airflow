@@ -25,6 +25,7 @@ with DAG(
         task_id="wait_for",
         external_dag_id="bash_sleep_3",
         external_task_id="end",
+        poke_interval=60,
         timeout=600,
         allowed_states=['success'],
         failed_states=['failed', 'skipped'],
