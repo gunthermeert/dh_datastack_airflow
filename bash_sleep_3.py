@@ -11,7 +11,7 @@ from airflow.utils.dates import timedelta
 
 
 with DAG(
-    dag_id='bash_sleep_2',
+    dag_id='bash_sleep_3',
     start_date=datetime(2022, 11, 7),
     description='dbt dag for atlas estate',
     schedule_interval="0 10 * * *",
