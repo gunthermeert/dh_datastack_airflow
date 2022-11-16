@@ -6,6 +6,7 @@ from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
+from airflow.operators.sensors import ExternalTaskSensor
 from airflow.utils.dates import datetime
 from airflow.utils.dates import timedelta
 
@@ -19,6 +20,16 @@ with DAG(
 ) as dag:
 
     start_dummy = DummyOperator(task_id="start")
+
+    wait_for = ExternalTaskSensor(
+        task_id="wait_for",
+        external_dag_id="bash_sleep_3",
+        external_task_id="end",
+        timeout=600,
+        allowed_states=['success'],
+        failed_states=['failed', 'skipped'],
+        mode="reschedule",
+    )
 
     trigger_sleep_3 = TriggerDagRunOperator(
         task_id="trigger_sleep_3",
