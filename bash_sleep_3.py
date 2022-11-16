@@ -22,7 +22,7 @@ with DAG(
 
     sleep_3 = BashOperator(
         task_id='sleep_3',
-        bash_command='sleep 5m',
+        bash_command='sleep 2m',
     )
 
     end_dummy = DummyOperator(task_id="end")
