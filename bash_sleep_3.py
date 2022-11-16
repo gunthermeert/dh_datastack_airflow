@@ -15,7 +15,8 @@ with DAG(
     start_date=datetime(2022, 11, 7),
     description='dbt dag for atlas estate',
     schedule_interval="0 10 * * *",
-    catchup=False
+    catchup=False,
+    max_active_runs=1
 ) as dag:
 
     start_dummy = DummyOperator(task_id="start")
