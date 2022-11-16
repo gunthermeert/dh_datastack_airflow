@@ -40,6 +40,6 @@ with DAG(
 
     end_dummy = DummyOperator(task_id="end")
 
-start_dummy >> trigger_sleep_3 >> end_dummy
+start_dummy >> wait_for >> trigger_sleep_3 >> end_dummy
 
 
