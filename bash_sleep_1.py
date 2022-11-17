@@ -21,17 +21,6 @@ with DAG(
 
     start_dummy = DummyOperator(task_id="start")
 
-    wait_for = ExternalTaskSensor(
-        task_id="wait_for",
-        external_dag_id="bash_sleep_3",
-        external_task_id="end",
-        poke_interval=60,
-        timeout=600,
-        allowed_states=['success'],
-        failed_states=['failed', 'skipped'],
-        mode="reschedule",
-    )
-
     trigger_sleep_3 = TriggerDagRunOperator(
         task_id="trigger_sleep_3",
         trigger_dag_id="bash_sleep_3",
@@ -41,6 +30,6 @@ with DAG(
 
     end_dummy = DummyOperator(task_id="end")
 
-start_dummy >> wait_for >> trigger_sleep_3 >> end_dummy
+start_dummy >> trigger_sleep_3 >> end_dummy
 
 
