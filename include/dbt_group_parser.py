@@ -79,6 +79,18 @@ class DbtDagParser:
                 dag=self.dag,
             )
 
+        if node_resource_type == "seed":
+            dbt_task = BashOperator(
+                task_id=node_name,
+                task_group = self.dbt_run_group,
+                bash_command=f"""
+                cd {DBT_DIR} &&
+                dbt {GLOBAL_CLI_FLAGS} seed --target dev --select {node_name} &&
+                dbt {GLOBAL_CLI_FLAGS} test --target dev --select {node_name}
+                """,
+                dag=self.dag,
+            )
+
         return dbt_task
 
     def make_dbt_task_groups(self):
@@ -91,7 +103,7 @@ class DbtDagParser:
         dbt_nodes = {}
 
         for node in data["nodes"].keys():
-            if node.split(".")[0] == "model" or node.split(".")[0] == "snapshot":
+            if node.split(".")[0] == "model" or node.split(".")[0] == "snapshot" or node.split(".")[0] == "seed":
 
                 dbt_nodes[node] = {}
 
