@@ -26,6 +26,7 @@ with DAG(
     start_date=datetime(2022, 11, 7),
     description='dbt dag that builds by reading manifest',
     schedule_interval="0 10 * * *",
+    max_active_runs=1,
     catchup=False
 ) as dag:
     start_dummy = DummyOperator(task_id="start")
