@@ -31,12 +31,13 @@ with DAG(
     start_dummy = DummyOperator(task_id="start")
 
     # We're using the dbt seed command here to populate the database for the purpose of this demo
+    # Maybe in the future we can build this step dynamicaly after reading out all sources that are dependencies for the run
     dbt_source_test = BashOperator(
         task_id="dbt_source_test",
         bash_command=
             f"""
             cd {DBT_PROJECT_DIR} &&
-            dbt {DBT_GLOBAL_CLI_FLAGS} test --select source:dh_datastack
+            dbt {DBT_GLOBAL_CLI_FLAGS} test --select source:dh_datastack source:dh_shop
             """,
             dag=dag,
     )
