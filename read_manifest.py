@@ -25,7 +25,7 @@ with DAG(
 
     #update deps
     dbt_update_packages = BashOperator(
-        task_id="dbt_source_test",
+        task_id="dbt_update_packages",
         bash_command=
             f"""
             cd {DBT_PROJECT_DIR} &&
