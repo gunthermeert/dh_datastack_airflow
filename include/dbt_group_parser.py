@@ -7,6 +7,7 @@ from airflow.utils.task_group import TaskGroup
 
 DBT_DIR = "/home/gunther/dh_datastack_dbt/dh_datastack"
 GLOBAL_CLI_FLAGS = "--no-write-json"
+DBT_COMMAND = None
 
 class DbtDagParser:
     """
@@ -56,40 +57,23 @@ class DbtDagParser:
         """Returns an Airflow operator"""
 
         if node_resource_type == "model":
-            dbt_task = BashOperator(
-                task_id=node_name,
-                task_group=self.dbt_run_group,
-                bash_command=f"""
-                cd {DBT_DIR} &&
-                dbt {GLOBAL_CLI_FLAGS} run --target dev --models {node_name} &&
-                dbt {GLOBAL_CLI_FLAGS} test --target dev --select {node_name}
-                """,
-                dag=self.dag,
-            )
-
+            DBT_COMMAND = "run"
         if node_resource_type == "snapshot":
-            dbt_task = BashOperator(
-                task_id=node_name,
-                task_group = self.dbt_run_group,
-                bash_command=f"""
-                cd {DBT_DIR} &&
-                dbt {GLOBAL_CLI_FLAGS} snapshot --target dev --select {node_name} &&
-                dbt {GLOBAL_CLI_FLAGS} test --target dev --select {node_name}
-                """,
-                dag=self.dag,
-            )
-
+            DBT_COMMAND = "snapshot"
         if node_resource_type == "seed":
-            dbt_task = BashOperator(
-                task_id=node_name,
-                task_group = self.dbt_run_group,
-                bash_command=f"""
-                cd {DBT_DIR} &&
-                dbt {GLOBAL_CLI_FLAGS} seed --target dev --select {node_name} &&
-                dbt {GLOBAL_CLI_FLAGS} test --target dev --select {node_name}
-                """,
-                dag=self.dag,
-            )
+            DBT_COMMAND = "seed"
+
+
+        dbt_task = BashOperator(
+            task_id=node_name,
+            task_group=self.dbt_run_group,
+            bash_command=f"""
+            cd {DBT_DIR} &&
+            dbt {GLOBAL_CLI_FLAGS} {DBT_COMMAND} --target dev --select {node_name} &&
+            dbt {GLOBAL_CLI_FLAGS} test --target dev --select {node_name}
+            """,
+            dag=self.dag,
+        )
 
         return dbt_task
 
