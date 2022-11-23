@@ -1,25 +1,17 @@
 #https://docs.astronomer.io/learn/airflow-dbt
-import datetime
-import json
-import pendulum
-
-
+import os
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy import DummyOperator
-from airflow.utils.task_group import TaskGroup
-from airflow.decorators import task_group
 from airflow.utils.dates import datetime
-from airflow.utils.dates import timedelta
 from include.dbt_group_parser import DbtDagParser
 
 # We're hardcoding these values here for the purpose of the demo, but in a production environment these
 # would probably come from a config file and/or environment variables!
-DBT_PROJECT_DIR = "/home/gunther/dh_datastack_dbt/dh_datastack"
-DBT_PROFILES_DIR = "/home/gunther/dh_datastack_dbt/.dbt"
+DBT_PROJECT_DIR = os.getenv('DBT_PROJECT_DIR')
+DBT_PROFILES_DIR = os.getenv('DBT_PROFILES_DIR')
 DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
-DBT_TARGET = "dev"
-DBT_TAG = "tag_staging"
+DBT_TARGET = os.getenv('DBT_TARGET')
 
 with DAG(
     dag_id='read_manifest',
@@ -31,19 +23,29 @@ with DAG(
 ) as dag:
     start_dummy = DummyOperator(task_id="start")
 
-    # We're using the dbt seed command here to populate the database for the purpose of this demo
-    # Maybe in the future we can build this step dynamicaly after reading out all sources that are dependencies for the run
+    #update deps
+    dbt_update_packages = BashOperator(
+        task_id="dbt_source_test",
+        bash_command=
+            f"""
+            cd {DBT_PROJECT_DIR} &&
+            dbt deps
+            """,
+            dag=dag,
+    )
+
+    # test all sources
     dbt_source_test = BashOperator(
         task_id="dbt_source_test",
         bash_command=
             f"""
             cd {DBT_PROJECT_DIR} &&
-            dbt {DBT_GLOBAL_CLI_FLAGS} test --select source:dh_datastack source:dh_shop
+            dbt {DBT_GLOBAL_CLI_FLAGS} test --select source:*
             """,
             dag=dag,
     )
 
-    # The parser parses out a dbt manifest.json file and dynamically creates tasks for "dbt run" and "dbt test"
+    # The parser parses out a dbt manifest.json file and dynamically creates tasks for "dbt run", "dbt snapshot", "dbt seed" and "dbt test"
     # commands for each individual model. It groups them into task groups which we can retrieve and use in the DAG.
     dag_parser = DbtDagParser(
         dbt_global_cli_flags=DBT_GLOBAL_CLI_FLAGS,
@@ -56,5 +58,5 @@ with DAG(
 
     end_dummy = DummyOperator(task_id="end")
 
-    start_dummy >> dbt_source_test >> dbt_run_group >> end_dummy
+    start_dummy >> dbt_update_packages >> dbt_source_test >> dbt_run_group >> end_dummy
 
