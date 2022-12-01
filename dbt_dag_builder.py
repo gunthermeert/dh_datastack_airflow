@@ -18,6 +18,7 @@ DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
 DBT_MODEL_RUN = None
 
 def set_dbt_model_run(model_run):
+    global DBT_MODEL_RUN
     DBT_MODEL_RUN = model_run
     return DBT_MODEL_RUN
 
@@ -70,7 +71,7 @@ with DAG(
         dbt_project_dir=DBT_PROJECT_DIR,
         dbt_profiles_dir=DBT_PROFILES_DIR,
         dbt_target=DBT_TARGET,
-        dbt_model_run="stg_dh_shop__customers"
+        dbt_model_run=DBT_MODEL_RUN
     )
 
     dbt_run_group = dag_parser.get_dbt_run_group()
