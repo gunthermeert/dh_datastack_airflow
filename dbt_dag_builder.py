@@ -71,7 +71,7 @@ with DAG(
         dbt_project_dir=DBT_PROJECT_DIR,
         dbt_profiles_dir=DBT_PROFILES_DIR,
         dbt_target=DBT_TARGET,
-        dbt_model_run=DBT_MODEL_RUN
+        dbt_model_run=t1
     )
 
     dbt_run_group = dag_parser.get_dbt_run_group()
