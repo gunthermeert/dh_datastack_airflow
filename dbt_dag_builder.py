@@ -32,6 +32,7 @@ with DAG(
     catchup=False
 ) as dag:
     start_dummy = DummyOperator(task_id="start")
+    #test_var = '{{params.model_run}}'
     test_var = '{{params.model_run}}'
 
     #update deps
