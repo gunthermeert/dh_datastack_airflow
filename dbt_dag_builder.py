@@ -18,7 +18,7 @@ DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
 
 def set_dbt_model_run():
     global DBT_MODEL_RUN
-    DBT_MODEL_RUN = "stg_dh_shop__customers"
+    DBT_MODEL_RUN = f"""{{params.model_run}}"""
     return DBT_MODEL_RUN
 
 set_dbt_model_run()
