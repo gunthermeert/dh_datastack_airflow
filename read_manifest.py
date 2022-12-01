@@ -1,4 +1,3 @@
-#https://docs.astronomer.io/learn/airflow-dbt
 import os
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
@@ -8,10 +7,10 @@ from include.dbt_group_parser import DbtDagParser
 
 # We're hardcoding these values here for the purpose of the demo, but in a production environment these
 # would probably come from a config file and/or environment variables!
-DBT_PROJECT_DIR = os.getenv('DBT_PROJECT_DIR')
-DBT_PROFILES_DIR = os.getenv('DBT_PROFILES_DIR')
+DBT_PROJECT_DIR = os.getenv('DBT_PROJECT_DIR') # DBT_PROJECT_DIR = /dh_datastack_dbt/dh_datastack
+DBT_PROFILES_DIR = os.getenv('DBT_PROFILES_DIR') # DBT_PROFILES_DIR = /dh_datastack_dbt/.dbt
 DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
-DBT_TARGET = os.getenv('DBT_TARGET')
+DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
 
 with DAG(
     dag_id='read_manifest',
