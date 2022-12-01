@@ -62,6 +62,13 @@ with DAG(
         dag=dag,
     )
 
+    # test all sources
+    t2 = BashOperator(
+        task_id="test_bash",
+        bash_command="echo ############# {{params.model_run}}",
+            dag=dag,
+    )
+
     # The parser parses out a dbt manifest.json file and dynamically creates tasks for "dbt run", "dbt snapshot", "dbt seed" and "dbt test"
     # commands for each individual model. It groups them into task groups which we can retrieve and use in the DAG.
     dag_parser = DbtDagParser(
@@ -76,4 +83,4 @@ with DAG(
 
     end_dummy = DummyOperator(task_id="end")
 
-    start_dummy >> dbt_update_packages >> dbt_source_test >> t1 >> dbt_run_group >> end_dummy
+    start_dummy >> dbt_update_packages >> dbt_source_test >> t1 >> t2 >> dbt_run_group >> end_dummy
