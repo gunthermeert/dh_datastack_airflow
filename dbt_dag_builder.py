@@ -68,7 +68,6 @@ with DAG(
         #provide_context=True,
         python_callable=create_dbt_run,
         #op_kwargs={'key1': 'value1', 'key2': 'value2'},
-        dag=dag,
     )
 
     end_dummy = DummyOperator(task_id="end")
