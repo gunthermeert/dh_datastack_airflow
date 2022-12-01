@@ -58,7 +58,7 @@ with DAG(
         dbt_project_dir=DBT_PROJECT_DIR,
         dbt_profiles_dir=DBT_PROFILES_DIR,
         dbt_target=DBT_TARGET,
-        dbt_model_run=""
+        dbt_model_run="stg_dh_shop__customers"
     )
 
 
@@ -73,5 +73,5 @@ with DAG(
 
     end_dummy = DummyOperator(task_id="end")
 
-    start_dummy >> dbt_update_packages >> dbt_source_test >> dbt_run_group >> run_this >> end_dummy
-
+    #start_dummy >> dbt_update_packages >> dbt_source_test >> dbt_run_group >> end_dummy
+    start_dummy >> run_this >> end_dummy
