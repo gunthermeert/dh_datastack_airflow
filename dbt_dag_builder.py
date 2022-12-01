@@ -62,10 +62,12 @@ with DAG(
         dag=dag,
     )
 
+    test_var = '{{params.model_run}}'
+
     # test all sources
     t2 = BashOperator(
         task_id="test_bash",
-        bash_command="echo ############# {{dag_run.conf}}",
+        bash_command=f"""echo ############# {test_var}""",
             dag=dag,
     )
 
