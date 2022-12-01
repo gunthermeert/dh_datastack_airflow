@@ -15,12 +15,13 @@ DBT_PROJECT_DIR = os.getenv('DBT_PROJECT_DIR') # DBT_PROJECT_DIR = /dh_datastack
 DBT_PROFILES_DIR = os.getenv('DBT_PROFILES_DIR') # DBT_PROFILES_DIR = /dh_datastack_dbt/.dbt
 DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
-DBT_MODEL_RUN = "stg_dh_shop__customers"
 
-def set_dbt_model_run(model_run):
+def set_dbt_model_run():
     global DBT_MODEL_RUN
-    DBT_MODEL_RUN = model_run
+    DBT_MODEL_RUN = "stg_dh_shop__customers"
     return DBT_MODEL_RUN
+
+set_dbt_model_run()
 
 with DAG(
     dag_id='dbt_dag_builder',
