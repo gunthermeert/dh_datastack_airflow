@@ -50,7 +50,8 @@ with DAG(
             """,
             dag=dag,
     )
-  """ 
+
+""" 
     t1 = PythonOperator(
         task_id='set_model_run',
         python_callable=set_dbt_model_run,
@@ -66,8 +67,8 @@ with DAG(
         dbt_project_dir=DBT_PROJECT_DIR,
         dbt_profiles_dir=DBT_PROFILES_DIR,
         dbt_target=DBT_TARGET,
-        dbt_model_run="all",
     )
+
     dbt_run_group = dag_parser.get_dbt_run_group()
 
     end_dummy = DummyOperator(task_id="end")
