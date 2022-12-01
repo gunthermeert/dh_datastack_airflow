@@ -55,14 +55,14 @@ with DAG(
             """,
             dag=dag,
     )
-"""
+
     t1 = PythonOperator(
         task_id='set_model_run',
         python_callable=set_dbt_model_run,
         op_kwargs={"model_run": "{{params.model_run}}"},
         dag=dag,
     )
-"""
+
     # The parser parses out a dbt manifest.json file and dynamically creates tasks for "dbt run", "dbt snapshot", "dbt seed" and "dbt test"
     # commands for each individual model. It groups them into task groups which we can retrieve and use in the DAG.
     dag_parser = DbtDagParser(
