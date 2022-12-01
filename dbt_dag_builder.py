@@ -17,7 +17,7 @@ DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
 
 def set_model_env(model_run):
-    #os.environ['DBT_RUN_MODEL'] = model_run
+    os.environ['DBT_RUN_MODEL'] = model_run
     test = model_run
 
     return test #os.environ['DBT_RUN_MODEL']
