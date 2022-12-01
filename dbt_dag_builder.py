@@ -29,7 +29,7 @@ with DAG(
     #update deps
     print_param = BashOperator(
         task_id="print_param",
-        bash_command="echo dit is een parameter test:",
+        bash_command="echo dit is een parameter test: {{ params.model_run + 10 }}",
             dag=dag,
     )
 
