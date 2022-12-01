@@ -58,12 +58,20 @@ with DAG(
         dbt_project_dir=DBT_PROJECT_DIR,
         dbt_profiles_dir=DBT_PROFILES_DIR,
         dbt_target=DBT_TARGET,
-        dbt_model_run="{{params.model_run}}"
+        dbt_model_run="stg_dh_shop__customers"
     )
+
+
+    @task(task_id="print_the_context")
+    def print_context(ds=None, **kwargs):
+        """Print the Airflow context and ds variable from the context."""
+        return 'Whatever you return gets printed in the logs'
+
+    run_this = print_context()
 
     dbt_run_group = dag_parser.get_dbt_run_group()
 
     end_dummy = DummyOperator(task_id="end")
 
-    start_dummy >> dbt_update_packages >> dbt_source_test >> dbt_run_group >> end_dummy
+    start_dummy >> dbt_update_packages >> dbt_source_test >> dbt_run_group >> run_this >> end_dummy
 
