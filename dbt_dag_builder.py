@@ -65,7 +65,7 @@ with DAG(
     # test all sources
     t2 = BashOperator(
         task_id="test_bash",
-        bash_command="echo ############# {{params.model_run}}",
+        bash_command="echo ############# {{dag_run.conf}}",
             dag=dag,
     )
 
