@@ -15,6 +15,11 @@ DBT_PROJECT_DIR = os.getenv('DBT_PROJECT_DIR') # DBT_PROJECT_DIR = /dh_datastack
 DBT_PROFILES_DIR = os.getenv('DBT_PROFILES_DIR') # DBT_PROFILES_DIR = /dh_datastack_dbt/.dbt
 DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
+DBT_MODEL_RUN = None
+
+def set_dbt_model_run(model_run):
+    DBT_MODEL_RUN = model_run
+    return DBT_MODEL_RUN
 
 with DAG(
     dag_id='dbt_dag_builder',
@@ -61,20 +66,15 @@ with DAG(
         dbt_model_run="stg_dh_shop__customers"
     )
 
-
-    @task(task_id="print_the_context")
-    def print_context(ds=None, **kwargs):
-        """Print the Airflow context and ds variable from the context."""
-
-        payIntList = list(map(int, {{dag["params"]}}))
-
-        return payIntList
-
-    run_this = print_context()
+     t1 = PythonOperator(
+        task_id='set_model_run',
+        python_callable=set_dbt_model_run,
+        op_kwargs={"model_run": "{{params.model_run}}"},
+        dag=dag,
+    )
 
     dbt_run_group = dag_parser.get_dbt_run_group()
 
     end_dummy = DummyOperator(task_id="end")
 
-    #start_dummy >> dbt_update_packages >> dbt_source_test >> dbt_run_group >> end_dummy
-    start_dummy >> run_this >> end_dummy
+    start_dummy >> dbt_update_packages >> dbt_source_test >> t1>> dbt_run_group >> end_dummy
