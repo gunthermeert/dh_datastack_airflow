@@ -65,8 +65,10 @@ with DAG(
     @task(task_id="print_the_context")
     def print_context(ds=None, **kwargs):
         """Print the Airflow context and ds variable from the context."""
-        key = {{dag["params"]}}
-        return key
+
+        payIntList = list(map(int, {{dag["params"]}}))
+
+        return payIntList
 
     run_this = print_context()
 
