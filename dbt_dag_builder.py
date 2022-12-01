@@ -16,10 +16,11 @@ DBT_PROFILES_DIR = os.getenv('DBT_PROFILES_DIR') # DBT_PROFILES_DIR = /dh_datast
 DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
 
-def set_model_env(dbt_run_model):
-    os.environ['DBT_RUN_MODEL'] = dbt_run_model
+def set_model_env(model_run):
+    #os.environ['DBT_RUN_MODEL'] = model_run
+    test = model_run
 
-    return os.environ['DBT_RUN_MODEL']
+    return test #os.environ['DBT_RUN_MODEL']
 
 with DAG(
     dag_id='dbt_dag_builder',
