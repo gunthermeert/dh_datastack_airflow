@@ -63,11 +63,6 @@ with DAG(
         dag=dag,
     )
 
-    def def_test(t1):
-        print("################", t1)
-
-    def_test(t1)
-
     # The parser parses out a dbt manifest.json file and dynamically creates tasks for "dbt run", "dbt snapshot", "dbt seed" and "dbt test"
     # commands for each individual model. It groups them into task groups which we can retrieve and use in the DAG.
     dag_parser = DbtDagParser(
@@ -75,7 +70,7 @@ with DAG(
         dbt_project_dir=DBT_PROJECT_DIR,
         dbt_profiles_dir=DBT_PROFILES_DIR,
         dbt_target=DBT_TARGET,
-        dbt_model_run=t1 #"{{params.model_run}}"
+        dbt_model_run="{{params.model_run}}"
     )
 
     dbt_run_group = dag_parser.get_dbt_run_group()
