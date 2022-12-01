@@ -77,4 +77,4 @@ with DAG(
 
     end_dummy = DummyOperator(task_id="end")
 
-    start_dummy >> dbt_update_packages >> dbt_source_test >> dbt_run_group >> end_dummy
+    start_dummy >> dbt_update_packages >> dbt_source_test >> t1 >> dbt_run_group >> end_dummy
