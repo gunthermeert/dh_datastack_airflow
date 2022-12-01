@@ -7,7 +7,7 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.utils.dates import datetime
 from include.dbt_group_parser_v2 import DbtDagParser
-
+from airflow.decorators import dag, task
 
 # We're hardcoding these values here for the purpose of the demo, but in a production environment these
 # would probably come from a config file and/or environment variables!
