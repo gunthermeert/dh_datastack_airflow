@@ -89,7 +89,7 @@ class DbtDagParser:
         dbt_nodes = {}
 
         # check if parameter model_run <> all
-        if self.model_run == 'all':
+        if self.dbt_model_run == 'all':
             for node in data["nodes"].keys():
                 if node.split(".")[0] == "model" or node.split(".")[0] == "snapshot" or node.split(".")[0] == "seed":
 
@@ -107,7 +107,7 @@ class DbtDagParser:
                     dbt_nodes[node]['node_depends_on'] = node_dependencies_distinct
         else:
             for node in data["parent_map"].keys():  # get the parents from the specified model
-                if node.split(".")[-1] == self.model_run:
+                if node.split(".")[-1] == self.dbt_model_run:
 
                     if node.split(".")[0] == "model" or node.split(".")[0] == "snapshot" or node.split(".")[0] == "seed":
                         dbt_nodes[node] = {}
