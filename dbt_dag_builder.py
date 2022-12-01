@@ -21,8 +21,6 @@ def set_dbt_model_run():
     DBT_MODEL_RUN = f"""{{params.model_run}}"""
     return DBT_MODEL_RUN
 
-set_dbt_model_run()
-
 with DAG(
     dag_id='dbt_dag_builder',
     start_date=datetime(2022, 11, 7),
@@ -72,7 +70,7 @@ with DAG(
         dbt_project_dir=DBT_PROJECT_DIR,
         dbt_profiles_dir=DBT_PROFILES_DIR,
         dbt_target=DBT_TARGET,
-        dbt_model_run=DBT_MODEL_RUN
+        dbt_model_run=set_dbt_model_run()
     )
 
     dbt_run_group = dag_parser.get_dbt_run_group()
