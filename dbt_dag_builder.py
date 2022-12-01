@@ -6,7 +6,8 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.utils.dates import datetime
-from include.dbt_group_parser import DbtDagParser
+from include.dbt_group_parser_v2 import DbtDagParser
+
 
 # We're hardcoding these values here for the purpose of the demo, but in a production environment these
 # would probably come from a config file and/or environment variables!
@@ -57,6 +58,7 @@ with DAG(
         dbt_project_dir=DBT_PROJECT_DIR,
         dbt_profiles_dir=DBT_PROFILES_DIR,
         dbt_target=DBT_TARGET,
+        dbt_model_run="all"
     )
 
     dbt_run_group = dag_parser.get_dbt_run_group()
