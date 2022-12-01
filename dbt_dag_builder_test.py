@@ -14,7 +14,7 @@ DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
 
 with DAG(
-    dag_id='dbt_dag_builder',
+    dag_id='dbt_dag_builder_test',
     start_date=datetime(2022, 11, 7),
     description='dbt dag that builds by parameters reading read manifest',
     schedule_interval="0 10 * * *",
