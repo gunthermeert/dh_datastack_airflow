@@ -16,6 +16,11 @@ DBT_PROFILES_DIR = os.getenv('DBT_PROFILES_DIR') # DBT_PROFILES_DIR = /dh_datast
 DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
 
+def set_model_env(dbt_run_model):
+    os.environ['DBT_RUN_MODEL'] = dbt_run_model
+
+    return os.environ['DBT_RUN_MODEL']
+
 with DAG(
     dag_id='dbt_dag_builder',
     start_date=datetime(2022, 11, 7),
@@ -50,6 +55,14 @@ with DAG(
             """,
             dag=dag,
     )
+
+    t1 = PythonOperator(
+        task_id='set_model_run',
+        python_callable=set_model_env,
+        op_kwargs={"model_run": "{{params.model_run}}"},
+        dag=dag,
+    )
+
     # The parser parses out a dbt manifest.json file and dynamically creates tasks for "dbt run", "dbt snapshot", "dbt seed" and "dbt test"
     # commands for each individual model. It groups them into task groups which we can retrieve and use in the DAG.
     dag_parser = DbtDagParser(
@@ -65,12 +78,3 @@ with DAG(
     end_dummy = DummyOperator(task_id="end")
 
     start_dummy >> dbt_update_packages >> dbt_source_test >> dbt_run_group >> end_dummy
-
-    """ 
-        t1 = PythonOperator(
-            task_id='set_model_run',
-            python_callable=set_dbt_model_run,
-            op_kwargs={"model_run": "{{params.model_run}}"},
-            dag=dag,
-        )
-    """
