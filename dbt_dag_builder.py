@@ -67,7 +67,7 @@ with DAG(
     dbt_run_group = PythonOperator(
         task_id='dbt_run_group',
         provide_context=True,
-        python_callable=create_dbt_run,
+        python_callable=create_dbt_run(),
         #op_kwargs={'key1': 'value1', 'key2': 'value2'},
         dag=dag,
     )
