@@ -18,9 +18,7 @@ DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
 
 def set_model_env(model_run):
     os.environ['DBT_RUN_MODEL'] = model_run
-    test = model_run
-
-    return test #os.environ['DBT_RUN_MODEL']
+    return os.getenv('DBT_RUN_MODEL')
 
 with DAG(
     dag_id='dbt_dag_builder',
