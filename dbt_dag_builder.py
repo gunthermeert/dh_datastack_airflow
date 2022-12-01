@@ -3,6 +3,7 @@ from airflow import DAG
 from airflow.models.param import Param
 from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
+from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.utils.dates import datetime
 from include.dbt_group_parser import DbtDagParser
@@ -49,6 +50,7 @@ with DAG(
             dag=dag,
     )
 
+def create_dbt_run():
     # The parser parses out a dbt manifest.json file and dynamically creates tasks for "dbt run", "dbt snapshot", "dbt seed" and "dbt test"
     # commands for each individual model. It groups them into task groups which we can retrieve and use in the DAG.
     dag_parser = DbtDagParser(
@@ -58,8 +60,17 @@ with DAG(
         dbt_target=DBT_TARGET,
     )
 
-
     dbt_run_group = dag_parser.get_dbt_run_group()
+
+    return dbt_run_group
+
+    dbt_run_group = PythonOperator(
+        task_id='dbt_run_group',
+        provide_context=True,
+        python_callable=create_dbt_run(),
+        #op_kwargs={'key1': 'value1', 'key2': 'value2'},
+        dag=dag,
+    )
 
     end_dummy = DummyOperator(task_id="end")
 
