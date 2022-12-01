@@ -3,7 +3,6 @@ from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.models.param import Param
-from airflow.models import Variable
 from airflow.utils.dates import datetime
 from include.dbt_group_parser import DbtDagParser
 
@@ -13,10 +12,6 @@ DBT_PROJECT_DIR = os.getenv('DBT_PROJECT_DIR') # DBT_PROJECT_DIR = /dh_datastack
 DBT_PROFILES_DIR = os.getenv('DBT_PROFILES_DIR') # DBT_PROFILES_DIR = /dh_datastack_dbt/.dbt
 DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
-
-VAR_MODEL_RUN = "var_model_run"
-
-var_model_run = Variable.get(VAR_MODEL_RUN, default_var=[], deserialize_json=True)
 
 with DAG(
     dag_id='dbt_dag_builder',
