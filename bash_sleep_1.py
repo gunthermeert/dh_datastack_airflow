@@ -41,15 +41,15 @@ with DAG(
     start_dummy = DummyOperator(task_id="start")
 
     set_var = PythonOperator(
-        task_id='set_var',
+        task_id='set_model_var',
         provide_context=True,
         python_callable=set_run_model_var,
         op_kwargs={'model_run': '{{params.model_run}}'},
         dag=dag,
     )
 
-    set_model_var = TriggerDagRunOperator(
-        task_id='set_model_var',
+    dynamic_dbt_run = TriggerDagRunOperator(
+        task_id='dbt_run',
         trigger_dag_id='bash_sleep_3',
         wait_for_completion=True,
         dag=dag
@@ -75,6 +75,6 @@ with DAG(
     )
     """
 
-start_dummy >> set_var >> set_model_var >> end_dummy
+start_dummy >> set_var >> dynamic_dbt_run >> end_dummy
 
 
