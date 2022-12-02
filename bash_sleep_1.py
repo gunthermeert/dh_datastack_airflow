@@ -20,13 +20,6 @@ DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
 
 
-def modify_dro(context, dagrun_order):
-    print(context)
-    print(dagrun_order)
-    dagrun_order.payload = {
-        "message": "This is my conf message"
-    }
-    return dagrun_order
 
 with DAG(
     dag_id='bash_sleep_1',
