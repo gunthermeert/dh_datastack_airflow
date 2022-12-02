@@ -19,10 +19,12 @@ DBT_PROFILES_DIR = os.getenv('DBT_PROFILES_DIR') # DBT_PROFILES_DIR = /dh_datast
 DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
 
+"""
 def get_run_model_var():
     model_run_var = Variable.get("MODEL_RUN_VAR", "{{params.model_run}}")
 
     return model_run_var
+"""
 
 with DAG(
     dag_id='bash_sleep_3',
@@ -34,18 +36,6 @@ with DAG(
 ) as dag:
 
     start_dummy = DummyOperator(task_id="start")
-
-
-    def run_this_func(**context):
-        print(context["dag_run"].conf)
-
-
-    get_var = PythonOperator(
-        task_id='get_var',
-        provide_context=True,
-        python_callable=get_run_model_var,
-        dag=dag,
-    )
 
     # The parser parses out a dbt manifest.json file and dynamically creates tasks for "dbt run", "dbt snapshot", "dbt seed" and "dbt test"
     # commands for each individual model. It groups them into task groups which we can retrieve and use in the DAG.
@@ -68,7 +58,14 @@ with DAG(
         bash_command='sleep 1m',
     )
 """
-
-start_dummy >> get_var >> dbt_run_group >> end_dummy
+"""
+get_var = PythonOperator(
+    task_id='get_var',
+    provide_context=True,
+    python_callable=get_run_model_var,
+    dag=dag,
+)
+"""
+start_dummy >> dbt_run_group >> end_dummy
 
 
