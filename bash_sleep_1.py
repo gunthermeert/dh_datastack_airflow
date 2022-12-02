@@ -48,8 +48,8 @@ with DAG(
         dag=dag,
     )
 
-    run_this = TriggerDagRunOperator(
-        task_id='run_this',
+    run_model_var = TriggerDagRunOperator(
+        task_id='set_model_var_{{params.model_run}}',
         trigger_dag_id='bash_sleep_3',
         wait_for_completion=True,
         dag=dag
@@ -75,6 +75,6 @@ with DAG(
     )
     """
 
-start_dummy >> set_var >> run_this >> end_dummy
+start_dummy >> set_var >> run_model_var >> end_dummy
 
 
