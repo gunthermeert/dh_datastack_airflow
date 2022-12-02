@@ -3,6 +3,7 @@ import datetime
 import json
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.operators.python_operator import PythonOperator
@@ -10,6 +11,10 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.utils.dates import datetime
 from airflow.utils.dates import timedelta
 
+def get_run_model_var():
+    run_model_var = Variable.get("RUN_MODEL_VAR", "{{params.model_run}}")
+
+    return run_model_var
 
 with DAG(
     dag_id='bash_sleep_3',
@@ -30,7 +35,7 @@ with DAG(
     run_this = PythonOperator(
         task_id='run_this',
         provide_context=True,
-        python_callable=run_this_func,
+        python_callable=get_run_model_var,
         dag=dag,
     )
 

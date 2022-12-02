@@ -6,6 +6,7 @@ from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.models.param import Param
+from airflow.models import Variable
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.sensors.external_task import ExternalTaskMarker, ExternalTaskSensor
 from airflow.utils.dates import datetime
@@ -19,7 +20,10 @@ DBT_PROFILES_DIR = os.getenv('DBT_PROFILES_DIR') # DBT_PROFILES_DIR = /dh_datast
 DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
 
+def set_run_model_var():
+    run_model_var = Variable.set("RUN_MODEL_VAR", "{{params.model_run}}")
 
+    return run_model_var
 
 with DAG(
     dag_id='bash_sleep_1',
@@ -34,8 +38,7 @@ with DAG(
 
     start_dummy = DummyOperator(task_id="start")
 
-    model_run = '{{params.model_run}}'
-    owner = "{{ dag_run.conf['owner'] }}"
+
 
     # test all sources
     t2 = BashOperator(
@@ -44,11 +47,12 @@ with DAG(
             dag=dag,
     )
 
+    set_run_model_var()
 
     run_this = TriggerDagRunOperator(
         task_id='run_this',
         trigger_dag_id='bash_sleep_3',
-        op_kwargs={'model_run': 'test'},
+        wait_for_completion=True,
         dag=dag
     )
 
