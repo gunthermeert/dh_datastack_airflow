@@ -30,7 +30,7 @@ with DAG(
     # test all sources
     t2 = BashOperator(
         task_id="t2",
-        bash_command=f"""echo ############# {test_var}""",
+        bash_command="echo ############# '{{params.model_run}}'",
             dag=dag,
     )
     end_dummy = DummyOperator(task_id="end")
