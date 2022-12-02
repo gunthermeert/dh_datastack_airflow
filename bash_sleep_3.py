@@ -52,6 +52,8 @@ with DAG(
 
     end_dummy = DummyOperator(task_id="end")
 
+    Variable.set("MODEL_RUN_VAR", "all")
+
 """
     sleep_3 = BashOperator(
         task_id='sleep_3',
