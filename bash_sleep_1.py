@@ -50,7 +50,7 @@ with DAG(
         dbt_project_dir=DBT_PROJECT_DIR,
         dbt_profiles_dir=DBT_PROFILES_DIR,
         dbt_target=DBT_TARGET,
-        dbt_model_run=str(Param["model_run"])#os.getenv('DBT_RUN_MODEL')#"stg_dh_shop__customers"
+        dbt_model_run="""{{params.model_run}}"""#os.getenv('DBT_RUN_MODEL')#"stg_dh_shop__customers"
     )
 
     dbt_run_group = dag_parser.get_dbt_run_group()
