@@ -116,13 +116,13 @@ class DbtDagParser:
         return dbt_task
 
         # load manifest file to compile airflow code
-        data = self.load_manifest()
+        self.data = self.load_manifest()
         # print(json.dumps(data, indent=1))
 
-        parent_map_data = self.parent_mapping_data()
+        self.parent_map_data = self.parent_mapping_data()
 
         # add model/snapshot node info to dbt_nodes
-        dbt_nodes = {}
+        self.dbt_nodes = {}
 
 
     def make_dbt_task_groups(self):
