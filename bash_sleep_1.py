@@ -42,19 +42,22 @@ with DAG(
             dag=dag,
     )
 
-    "{{params.model_run}}"
 
-    # The parser parses out a dbt manifest.json file and dynamically creates tasks for "dbt run", "dbt snapshot", "dbt seed" and "dbt test"
-    # commands for each individual model. It groups them into task groups which we can retrieve and use in the DAG.
-    dag_parser = DbtDagParser(
-        dbt_global_cli_flags=DBT_GLOBAL_CLI_FLAGS,
-        dbt_project_dir=DBT_PROJECT_DIR,
-        dbt_profiles_dir=DBT_PROFILES_DIR,
-        dbt_target=DBT_TARGET,
-        dbt_model_run=owner,#os.getenv('DBT_RUN_MODEL')#"stg_dh_shop__customers"
+    def modify_dro(context, dagrun_order):
+        print(context)
+        print(dagrun_order)
+        dagrun_order.payload = {
+            "message": "This is my conf message"
+        }
+        return dagrun_order
+
+
+    run_this = TriggerDagRunOperator(
+        task_id='run_this',
+        trigger_dag_id='bash_sleep_3',
+        python_callable=modify_dro,
+        dag=dag
     )
-
-    dbt_run_group = dag_parser.get_dbt_run_group()
 
     end_dummy = DummyOperator(task_id="end")
 
@@ -67,6 +70,6 @@ with DAG(
         )
     """
 
-start_dummy >> t2 >> dbt_run_group >> end_dummy
+start_dummy >> t2 >> run_this >> end_dummy
 
 

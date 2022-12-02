@@ -5,6 +5,7 @@ import json
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy import DummyOperator
+from airflow.operators.python_operator import PythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.utils.dates import datetime
 from airflow.utils.dates import timedelta
@@ -21,13 +22,28 @@ with DAG(
 
     start_dummy = DummyOperator(task_id="start")
 
+
+    def run_this_func(**context):
+        print(context["dag_run"].conf)
+
+
+    run_this = PythonOperator(
+        task_id='run_this',
+        provide_context=True,
+        python_callable=run_this_func,
+        dag=dag,
+    )
+
+
+    end_dummy = DummyOperator(task_id="end")
+
+"""
     sleep_3 = BashOperator(
         task_id='sleep_3',
         bash_command='sleep 1m',
     )
+"""
 
-    end_dummy = DummyOperator(task_id="end")
-
-start_dummy >> sleep_3 >> end_dummy
+start_dummy >> run_this >> end_dummy
 
 
