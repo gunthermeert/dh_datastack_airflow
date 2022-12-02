@@ -48,7 +48,7 @@ with DAG(
     run_this = TriggerDagRunOperator(
         task_id='run_this',
         trigger_dag_id='bash_sleep_3',
-        op_kwargs={'model_run': '{{params.model_run}}'},
+        op_kwargs={'model_run': 'test'},
         dag=dag
     )
 
