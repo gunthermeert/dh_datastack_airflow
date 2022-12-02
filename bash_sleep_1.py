@@ -22,9 +22,8 @@ DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
 
 def set_run_model_var(**kwargs):
-    model_run_var = Variable.set("MODEL_RUN_VAR", kwargs["model_run"])
-
-    return model_run_var
+    Variable.set("MODEL_RUN_VAR", kwargs["model_run"])
+    print("#######", kwargs["model_run"])
 
 with DAG(
     dag_id='bash_sleep_1',
