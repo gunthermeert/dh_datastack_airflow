@@ -7,6 +7,7 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.models.param import Param
 from airflow.models import Variable
+from airflow.operators.python_operator import PythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.sensors.external_task import ExternalTaskMarker, ExternalTaskSensor
 from airflow.utils.dates import datetime
@@ -47,7 +48,12 @@ with DAG(
             dag=dag,
     )
 
-    set_run_model_var()
+    set_var = PythonOperator(
+        task_id='set_var',
+        provide_context=True,
+        python_callable=set_run_model_var,
+        dag=dag,
+    )
 
     run_this = TriggerDagRunOperator(
         task_id='run_this',

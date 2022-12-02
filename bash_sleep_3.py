@@ -32,8 +32,8 @@ with DAG(
         print(context["dag_run"].conf)
 
 
-    run_this = PythonOperator(
-        task_id='run_this',
+    get_var = PythonOperator(
+        task_id='get_var',
         provide_context=True,
         python_callable=get_run_model_var,
         dag=dag,
@@ -49,6 +49,6 @@ with DAG(
     )
 """
 
-start_dummy >> run_this >> end_dummy
+start_dummy >> get_var >> end_dummy
 
 
