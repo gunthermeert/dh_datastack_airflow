@@ -131,8 +131,8 @@ class DbtDagParser:
         if self.dbt_model_run == 'all':
             self.generate_all_nodes()
         else:
-            if self.model_run in self.parent_map_data:
-                self.iterate_parent_nodes(self.model_run)
+            if self.dbt_model_run in self.parent_map_data:
+                self.iterate_parent_nodes(self.dbt_model_run)
 
         #create a bashoperator per dbt node, this must be done before creating the airflow order dependency
         airflow_operators = {}
