@@ -31,16 +31,17 @@ with DAG(
         bash_command=f"""echo ############# '{{params.model_run}}'""",
             dag=dag,
     )
-
-    trigger_sleep_3 = TriggerDagRunOperator(
-        task_id="trigger_sleep_3",
-        trigger_dag_id="bash_sleep_3",
-        wait_for_completion=True,
-        dag=dag,
-    )
-
     end_dummy = DummyOperator(task_id="end")
 
-start_dummy >> t2 >> trigger_sleep_3 >> end_dummy
+    """
+        trigger_sleep_3 = TriggerDagRunOperator(
+            task_id="trigger_sleep_3",
+            trigger_dag_id="bash_sleep_3",
+            wait_for_completion=True,
+            dag=dag,
+        )
+    """
+
+start_dummy >> t2 >> end_dummy
 
 
