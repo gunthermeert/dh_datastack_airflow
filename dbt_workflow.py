@@ -15,10 +15,11 @@ def set_run_model_var(**kwargs):
     print("#######", kwargs["model_run"])
 
 with DAG(
-    dag_id='bash_sleep_1',
+    dag_id='dbt_workflow',
     start_date=datetime(2022, 11, 7),
-    description='dbt dag for atlas estate',
+    description='dbt dag that by default runs all dbt models, otherwise via parameter MODEL_RUN_VAR',
     schedule_interval="0 10 * * *",
+    max_active_runs=1,
     params={
         "model_run": Param("all", type="string"),
     },
@@ -35,33 +36,16 @@ with DAG(
         dag=dag,
     )
 
-    dynamic_dbt_run = TriggerDagRunOperator(
-        task_id='dbt_run',
-        trigger_dag_id='bash_sleep_3',
+    dbt_run_models = TriggerDagRunOperator(
+        task_id='dbt_run_models',
+        trigger_dag_id='dbt_dag_builder',
         wait_for_completion=True,
         dag=dag
     )
 
     end_dummy = DummyOperator(task_id="end")
 
-    """
-        trigger_sleep_3 = TriggerDagRunOperator(
-            task_id="trigger_sleep_3",
-            trigger_dag_id="bash_sleep_3",
-            wait_for_completion=True,
-            dag=dag,
-        )
-    """
 
-    """
-        # test all sources
-    t2 = BashOperator(
-        task_id="t2",
-        bash_command="echo ############# {{params.model_run}}",
-            dag=dag,
-    )
-    """
-
-start_dummy >> set_var >> dynamic_dbt_run >> end_dummy
+start_dummy >> set_var >> dbt_run_models >> end_dummy
 
 
