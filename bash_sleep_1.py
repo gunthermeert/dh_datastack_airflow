@@ -21,10 +21,10 @@ DBT_PROFILES_DIR = os.getenv('DBT_PROFILES_DIR') # DBT_PROFILES_DIR = /dh_datast
 DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
 
-def set_run_model_var():
-    run_model_var = Variable.set("RUN_MODEL_VAR", "{{params.model_run}}")
+def set_run_model_var(**kwargs):
+    model_run_var = Variable.set("MODEL_RUN_VAR", kwargs["model_run"])
 
-    return run_model_var
+    return model_run_var
 
 with DAG(
     dag_id='bash_sleep_1',
@@ -52,6 +52,7 @@ with DAG(
         task_id='set_var',
         provide_context=True,
         python_callable=set_run_model_var,
+        op_kwargs={'model_run': '{{params.model_run}}'},
         dag=dag,
     )
 

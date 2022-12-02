@@ -12,9 +12,9 @@ from airflow.utils.dates import datetime
 from airflow.utils.dates import timedelta
 
 def get_run_model_var():
-    run_model_var = Variable.get("RUN_MODEL_VAR", "{{params.model_run}}")
+    model_run_var = Variable.get("MODEL_RUN_VAR", "{{params.model_run}}")
 
-    return run_model_var
+    return model_run_var
 
 with DAG(
     dag_id='bash_sleep_3',
