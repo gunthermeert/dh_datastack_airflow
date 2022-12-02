@@ -26,7 +26,6 @@ def generate_all_nodes():
             dbt_nodes[node] = {}
 
             dbt_nodes[node]['node_name'] = node.split(".")[-1]
-            # dbt_nodes[node]['node_compiled'] = data["nodes"][node]["compiled"]
             dbt_nodes[node]['node_resource_type'] = data["nodes"][node]["resource_type"]
 
             # dependencies: the manifest file might generate duplicate dependencies within the same node
