@@ -38,15 +38,6 @@ with DAG(
 
     start_dummy = DummyOperator(task_id="start")
 
-
-
-    # test all sources
-    t2 = BashOperator(
-        task_id="t2",
-        bash_command="echo ############# {{params.model_run}}",
-            dag=dag,
-    )
-
     set_var = PythonOperator(
         task_id='set_var',
         provide_context=True,
@@ -73,6 +64,15 @@ with DAG(
         )
     """
 
-start_dummy >> t2 >> set_var >> run_this >> end_dummy
+    """
+        # test all sources
+    t2 = BashOperator(
+        task_id="t2",
+        bash_command="echo ############# {{params.model_run}}",
+            dag=dag,
+    )
+    """
+
+start_dummy >> set_var >> run_this >> end_dummy
 
 
