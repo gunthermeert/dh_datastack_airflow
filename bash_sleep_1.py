@@ -2,6 +2,7 @@
 import datetime
 import json
 import os
+import time
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy import DummyOperator
@@ -23,6 +24,7 @@ DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
 
 def set_run_model_var(**kwargs):
     Variable.set("MODEL_RUN_VAR", kwargs["model_run"])
+    time.sleep(10) #otherwise the triggered dag might get some complications
     print("#######", kwargs["model_run"])
 
 with DAG(
