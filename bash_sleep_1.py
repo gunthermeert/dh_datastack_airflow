@@ -73,6 +73,6 @@ with DAG(
         )
     """
 
-start_dummy >> t2 >> run_this >> end_dummy
+start_dummy >> t2 >> set_var >> run_this >> end_dummy
 
 
