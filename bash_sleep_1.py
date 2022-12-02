@@ -28,7 +28,7 @@ with DAG(
     # test all sources
     t2 = BashOperator(
         task_id="t2",
-        bash_command=f"""echo ############# {{params.model_run}}""",
+        bash_command=f"""echo ############# '{{params.model_run}}'""",
             dag=dag,
     )
 
