@@ -25,10 +25,12 @@ with DAG(
 
     start_dummy = DummyOperator(task_id="start")
 
+    test_var = '{{params.model_run}}'
+
     # test all sources
     t2 = BashOperator(
         task_id="t2",
-        bash_command=f"""echo ############# '{{params.model_run}}'""",
+        bash_command=f"""echo ############# {test_var}""",
             dag=dag,
     )
     end_dummy = DummyOperator(task_id="end")
