@@ -55,7 +55,7 @@ with DAG(
     run_this = TriggerDagRunOperator(
         task_id='run_this',
         trigger_dag_id='bash_sleep_3',
-        python_callable=modify_dro,
+        op_kwargs={'model_run': '{{params.model_run}}'},
         dag=dag
     )
 
