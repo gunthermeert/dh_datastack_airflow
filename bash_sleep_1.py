@@ -49,7 +49,7 @@ with DAG(
     )
 
     run_model_var = TriggerDagRunOperator(
-        task_id='set_model_var_{{params.model_run}}',
+        task_id='set_model_var_''{{params.model_run}}''',
         trigger_dag_id='bash_sleep_3',
         wait_for_completion=True,
         dag=dag
