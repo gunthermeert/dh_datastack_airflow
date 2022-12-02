@@ -115,8 +115,7 @@ class DbtDagParser:
                         dbt_nodes[node]['node_name'] = node.split(".")[-1]
                         dbt_nodes[node]['node_resource_type'] = node.split(".")[0]
 
-                        node_dependencies = [x for x in data["parent_map"][node] if
-                                             "source." not in x]  # this removes dbt source dependencies of the original list data["nodes"][node]["depends_on"]["nodes"]
+                        node_dependencies = [x for x in data["parent_map"][node] if "source." not in x]  # this removes dbt source dependencies of the original list data["nodes"][node]["depends_on"]["nodes"]
                         node_dependencies_distinct = list(dict.fromkeys(node_dependencies))
 
                         dbt_nodes[node]['node_depends_on'] = node_dependencies_distinct

@@ -55,7 +55,7 @@ with DAG(
         dbt_project_dir=DBT_PROJECT_DIR,
         dbt_profiles_dir=DBT_PROFILES_DIR,
         dbt_target=DBT_TARGET,
-        dbt_model_run=Variable.get("MODEL_RUN_VAR", "{{params.model_run}}")
+        dbt_model_run=Variable.get("MODEL_RUN_VAR", "{{params.model_run}}") #or fill in manual with a model name
     )
 
     dbt_run_group = dag_parser.get_dbt_run_group()
