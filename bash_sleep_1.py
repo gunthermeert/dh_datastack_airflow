@@ -27,7 +27,7 @@ with DAG(
 
     # test all sources
     t2 = BashOperator(
-        task_id="{{params.model_run}}",
+        task_id="t2",
         bash_command=f"""echo ############# {{params.model_run}}""",
             dag=dag,
     )
@@ -41,6 +41,6 @@ with DAG(
 
     end_dummy = DummyOperator(task_id="end")
 
-start_dummy >> trigger_sleep_3 >> end_dummy
+start_dummy >> t2 >> trigger_sleep_3 >> end_dummy
 
 
