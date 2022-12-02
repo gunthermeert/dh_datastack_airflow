@@ -45,6 +45,16 @@ class DbtDagParser:
         self.dbt_run_group = TaskGroup(dbt_run_group_name)
         self.dbt_model_run = dbt_model_run
 
+        # load manifest file to compile airflow code
+        self.data = self.load_manifest()
+        # print(json.dumps(data, indent=1))
+
+        self.parent_map_data = self.parent_mapping_data()
+
+        # add model/snapshot node info to dbt_nodes
+        self.dbt_nodes = {}
+
+
         # Parse the manifest and populate the two task groups
         self.make_dbt_task_groups()
 
@@ -114,15 +124,6 @@ class DbtDagParser:
         )
 
         return dbt_task
-
-        # load manifest file to compile airflow code
-        self.data = self.load_manifest()
-        # print(json.dumps(data, indent=1))
-
-        self.parent_map_data = self.parent_mapping_data()
-
-        # add model/snapshot node info to dbt_nodes
-        self.dbt_nodes = {}
 
 
     def make_dbt_task_groups(self):
