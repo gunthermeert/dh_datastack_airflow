@@ -30,9 +30,9 @@ class DbtDagParser:
         dbt_project_dir=None,
         dbt_profiles_dir=None,
         dbt_target=None,
+        dbt_manifest_filepath=None,
         dbt_tag=None,
         dbt_run_group_name="dbt_run",
-        dbt_manifest_filepath=None,
         dbt_model_run=None,
     ):
 
@@ -41,10 +41,10 @@ class DbtDagParser:
         self.dbt_project_dir = dbt_project_dir
         self.dbt_profiles_dir = dbt_profiles_dir
         self.dbt_target = dbt_target
+        self.dbt_manifest_filepath = dbt_manifest_filepath
         self.dbt_tag = dbt_tag
 
         self.dbt_run_group = TaskGroup(dbt_run_group_name)
-        self.dbt_manifest_filepath = dbt_manifest_filepath
         self.dbt_model_run = dbt_model_run
 
         # load manifest file to compile airflow code
