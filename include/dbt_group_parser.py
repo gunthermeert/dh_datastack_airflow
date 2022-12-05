@@ -28,7 +28,7 @@ class DbtDagParser:
         dbt_project_dir=None,
         dbt_profiles_dir=None,
         dbt_target=None,
-        dbt_manifest_filepath="dh_datastack_marketing/target/manifest.json",
+        dbt_manifest_filepath=None,
         dbt_tag=None,
         dbt_run_group_name="dbt_run",
         dbt_model_run=None,
@@ -59,7 +59,7 @@ class DbtDagParser:
         self.make_dbt_task_groups()
 
     def load_manifest(self):
-        local_filepath = "/home/gunther/dh_datastack_dbt/" + self.dbt_manifest_filepath #"/home/gunther/dh_datastack_dbt/dh_datastack_marketing/target/manifest.json" #"C:/Users/GuntherMeert/Downloads/manifest.json"
+        local_filepath = "" + self.dbt_manifest_filepath #"/home/gunther/dh_datastack_dbt/dh_datastack_marketing/target/manifest.json" #"C:/Users/GuntherMeert/Downloads/manifest.json"
         with open(local_filepath) as f:
             data = json.load(f)
 
