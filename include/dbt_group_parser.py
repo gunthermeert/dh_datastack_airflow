@@ -46,10 +46,10 @@ class DbtDagParser:
         self.dbt_model_run = dbt_model_run
 
         # load manifest file to compile airflow code
-        #self.data = self.load_manifest()
+        self.data = self.load_manifest()
         # print(json.dumps(data, indent=1))
 
-        #self.parent_map_data = self.parent_mapping_data()
+        self.parent_map_data = self.parent_mapping_data()
 
         # add model/snapshot node info to dbt_nodes
         self.dbt_nodes = {}
@@ -61,11 +61,10 @@ class DbtDagParser:
     def load_manifest(self):
         if self.dbt_manifest_filepath is not None:
             local_filepath = self.dbt_manifest_filepath #"/home/gunther/dh_datastack_dbt/dh_datastack_marketing/target/manifest.json" #"C:/Users/GuntherMeert/Downloads/manifest.json"
+            with open(local_filepath) as f:
+                data = json.load(f)
         else:
-            local_filepath = "dit zou niet mogen"
-
-        with open(local_filepath) as f:
-            data = json.load(f)
+            data = None
 
         return data
 
