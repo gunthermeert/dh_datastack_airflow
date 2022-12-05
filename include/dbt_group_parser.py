@@ -49,7 +49,7 @@ class DbtDagParser:
         self.data = self.load_manifest()
         # print(json.dumps(data, indent=1))
 
-        self.parent_map_data = self.parent_mapping_data()
+        #self.parent_map_data = self.parent_mapping_data()
 
         # add model/snapshot node info to dbt_nodes
         self.dbt_nodes = {}
