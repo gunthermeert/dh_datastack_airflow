@@ -15,7 +15,7 @@ DBT_PROJECT_DIR = os.getenv('DBT_PROJECT_DIR') # DBT_PROJECT_DIR = /dh_datastack
 DBT_PROFILES_DIR = os.getenv('DBT_PROFILES_DIR') # DBT_PROFILES_DIR = /dh_datastack_dbt/.dbt
 DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
-DBT_MANIFEST_FILEPATH = "/home/gunther/dh_datastack_dbt/dh_datastack/target/manifest.json"
+DBT_MANIFEST_FILEPATH = "/home/gunther/dh_datastack_dbt/dh_datastack_marketing/target/manifest.json"
 DBT_MODEL_RUN = "all" #"model.dh_datastack.daily_product_sales" #"model.dh_datastack.int_finance__product_sales" #"model.dh_datastack.stg_dh_shop__customers"
 
 with DAG(
@@ -57,7 +57,7 @@ with DAG(
         dbt_project_dir=DBT_PROJECT_DIR,
         dbt_profiles_dir=DBT_PROFILES_DIR,
         dbt_target=DBT_TARGET,
-        dbt_manifest_filepath="/home/gunther/dh_datastack_dbt/dh_datastack_marketing/target/manifest.json",
+        dbt_manifest_filepath=DBT_MANIFEST_FILEPATH,
         #dbt_model_run=Variable.get("MODEL_RUN_VAR", "{{params.model_run}}") #or fill in manual with a model name #resource_type.project.model_name #"model.dh_datastack.daily_product_sales"
         dbt_model_run=DBT_MODEL_RUN,
     )
