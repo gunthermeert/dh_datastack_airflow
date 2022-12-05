@@ -61,6 +61,8 @@ class DbtDagParser:
     def load_manifest(self):
         if self.dbt_manifest_filepath is not None:
             local_filepath = self.dbt_manifest_filepath #"/home/gunther/dh_datastack_dbt/dh_datastack_marketing/target/manifest.json" #"C:/Users/GuntherMeert/Downloads/manifest.json"
+        else:
+            local_filepath = "dit zou niet mogen"
 
         with open(local_filepath) as f:
             data = json.load(f)
