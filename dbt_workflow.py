@@ -38,7 +38,7 @@ with DAG(
 
     dbt_run_models = TriggerDagRunOperator(
         task_id='dbt_run_models',
-        trigger_dag_id='dbt_dag_builder_lib',
+        trigger_dag_id='dbt_dag_builder',
         wait_for_completion=True,
         dag=dag
     )
