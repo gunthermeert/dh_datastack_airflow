@@ -5,8 +5,8 @@ import subprocess
 from airflow.operators.bash import BashOperator
 from airflow.utils.task_group import TaskGroup
 
-DBT_DIR = "/home/gunther/dh_datastack_dbt/dh_datastack"
-GLOBAL_CLI_FLAGS = "--no-write-json"
+#DBT_DIR = "/home/gunther/dh_datastack_dbt/dh_datastack"
+#GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_COMMAND = None
 
 class DbtDagParser:
@@ -32,6 +32,7 @@ class DbtDagParser:
         dbt_target=None,
         dbt_tag=None,
         dbt_run_group_name="dbt_run",
+        dbt_manifest_filepath=None,
         dbt_model_run=None,
     ):
 
@@ -43,6 +44,7 @@ class DbtDagParser:
         self.dbt_tag = dbt_tag
 
         self.dbt_run_group = TaskGroup(dbt_run_group_name)
+        self.dbt_manifest_filepath = dbt_manifest_filepath
         self.dbt_model_run = dbt_model_run
 
         # load manifest file to compile airflow code
@@ -59,7 +61,7 @@ class DbtDagParser:
         self.make_dbt_task_groups()
 
     def load_manifest(self):
-        local_filepath = "/home/gunther/dh_datastack_dbt/dh_datastack/target/manifest.json" #"C:/Users/GuntherMeert/Downloads/manifest.json"
+        local_filepath = self.dbt_manifest_filepath #"C:/Users/GuntherMeert/Downloads/manifest.json"
         with open(local_filepath) as f:
             data = json.load(f)
 
@@ -116,9 +118,9 @@ class DbtDagParser:
             task_id=node_name,
             task_group=self.dbt_run_group,
             bash_command=f"""
-            cd {DBT_DIR} &&
-            dbt {GLOBAL_CLI_FLAGS} {DBT_COMMAND} --target dev --select {node_name} &&
-            dbt {GLOBAL_CLI_FLAGS} test --target dev --select {node_name}
+            cd {self.dbt_project_dir} &&
+            dbt {self.dbt_global_cli_flags} {DBT_COMMAND} --target dev --select {node_name} &&
+            dbt {self.dbt_global_cli_flags} test --target dev --select {node_name}
             """,
             dag=self.dag,
         )
