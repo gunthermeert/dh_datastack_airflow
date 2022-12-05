@@ -57,7 +57,7 @@ with DAG(
         dbt_project_dir=DBT_PROJECT_DIR,
         dbt_profiles_dir=DBT_PROFILES_DIR,
         dbt_target=DBT_TARGET,
-        dbt_manifest_filepath="/home/gunther/dh_datastack_dbt/dh_datastack/target/manifest.json",
+        dbt_manifest_filepath="/home/gunther/dh_datastack_dbt/dh_datastack_marketing/target/manifest.json",
         #dbt_model_run=Variable.get("MODEL_RUN_VAR", "{{params.model_run}}") #or fill in manual with a model name #resource_type.project.model_name #"model.dh_datastack.daily_product_sales"
         dbt_model_run=DBT_MODEL_RUN,
     )
