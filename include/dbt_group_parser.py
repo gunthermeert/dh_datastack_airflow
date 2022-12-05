@@ -5,8 +5,6 @@ import subprocess
 from airflow.operators.bash import BashOperator
 from airflow.utils.task_group import TaskGroup
 
-#DBT_DIR = "/home/gunther/dh_datastack_dbt/dh_datastack"
-#GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_COMMAND = None
 
 class DbtDagParser:
@@ -33,7 +31,7 @@ class DbtDagParser:
         dbt_manifest_filepath=None,
         dbt_tag=None,
         dbt_run_group_name="dbt_run",
-        dbt_model_run=None,
+        dbt_model_run="",
     ):
 
         self.dag = dag
@@ -61,7 +59,7 @@ class DbtDagParser:
         self.make_dbt_task_groups()
 
     def load_manifest(self):
-        local_filepath = "/home/gunther/dh_datastack_dbt/dh_datastack_marketing/target/manifest.json" #"C:/Users/GuntherMeert/Downloads/manifest.json"
+        local_filepath = self.dbt_manifest_filepath #"/home/gunther/dh_datastack_dbt/dh_datastack_marketing/target/manifest.json" #"C:/Users/GuntherMeert/Downloads/manifest.json"
         with open(local_filepath) as f:
             data = json.load(f)
 
