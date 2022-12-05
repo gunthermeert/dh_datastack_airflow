@@ -19,7 +19,7 @@ DBT_MANIFEST_FILEPATH = "/home/gunther/dh_datastack_dbt/dh_datastack_marketing/t
 DBT_MODEL_RUN = "all" #"model.dh_datastack.daily_product_sales" #"model.dh_datastack.int_finance__product_sales" #"model.dh_datastack.stg_dh_shop__customers"
 
 with DAG(
-    dag_id='dbt_dag_builder',
+    dag_id='dbt_dh_datastack_marketing',
     start_date=datetime(2022, 11, 7),
     description='dbt dag that builds an airflow dag dynamically by reading manifest',
     schedule_interval="0 10 * * *",
