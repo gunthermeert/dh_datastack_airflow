@@ -28,7 +28,7 @@ class DbtDagParser:
         dbt_project_dir=None,
         dbt_profiles_dir=None,
         dbt_target=None,
-        dbt_manifest_filepath=None,
+        dbt_manifest_filepath="",
         dbt_tag=None,
         dbt_run_group_name="dbt_run",
         dbt_model_run=None,
