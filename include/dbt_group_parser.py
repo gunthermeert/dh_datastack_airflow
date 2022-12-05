@@ -62,7 +62,7 @@ class DbtDagParser:
 
     def load_manifest(self):
         #local_filepath = str(self.dbt_manifest_filepath) #"C:/Users/GuntherMeert/Downloads/manifest.json"
-        with open(self.dbt_manifest_filepath) as f:
+        with open("/home/gunther/dh_datastack_dbt/dh_datastack/target/manifest.json") as f:
             data = json.load(f)
 
         return data
