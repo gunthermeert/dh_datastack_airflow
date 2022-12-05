@@ -32,6 +32,7 @@ class DbtDagParser:
         dbt_target=None,
         dbt_tag=None,
         dbt_run_group_name="dbt_run",
+        dbt_model_run=None,
     ):
 
         self.dag = dag
@@ -42,6 +43,17 @@ class DbtDagParser:
         self.dbt_tag = dbt_tag
 
         self.dbt_run_group = TaskGroup(dbt_run_group_name)
+        self.dbt_model_run = dbt_model_run
+
+        # load manifest file to compile airflow code
+        self.data = self.load_manifest()
+        # print(json.dumps(data, indent=1))
+
+        self.parent_map_data = self.parent_mapping_data()
+
+        # add model/snapshot node info to dbt_nodes
+        self.dbt_nodes = {}
+
 
         # Parse the manifest and populate the two task groups
         self.make_dbt_task_groups()
@@ -52,6 +64,42 @@ class DbtDagParser:
             data = json.load(f)
 
         return data
+
+    def parent_mapping_data(self):
+        data = self.load_manifest()
+        return data["parent_map"]
+
+    def generate_all_nodes(self):
+        for node in self.data["nodes"].keys():
+            if node.split(".")[0] == "model" or node.split(".")[0] == "snapshot" or node.split(".")[0] == "seed":
+                self.dbt_nodes[node] = {}
+
+                self.dbt_nodes[node]['node_name'] = node.split(".")[-1]
+                self.dbt_nodes[node]['node_resource_type'] = self.data["nodes"][node]["resource_type"]
+
+                # dependencies: the manifest file might generate duplicate dependencies within the same node
+                # therefor we create a list with the distinct values
+                node_dependencies = [x for x in self.data["nodes"][node]["depends_on"]["nodes"] if
+                                     "source." not in x]  # this removes dbt source dependencies of the original list data["nodes"][node]["depends_on"]["nodes"]
+                node_dependencies_distinct = list(dict.fromkeys(node_dependencies))
+
+                self.dbt_nodes[node]['node_depends_on'] = node_dependencies_distinct
+
+    def iterate_parent_nodes(self, node):
+        # iterate over every node it's dependencies to see if that node has more depencies, so we can build parents from parents
+        if node.split(".")[0] == "model" or node.split(".")[0] == "snapshot" or node.split(".")[0] == "seed":
+            self.dbt_nodes[node] = {}
+
+            self.dbt_nodes[node]['node_name'] = node.split(".")[-1]
+            self.dbt_nodes[node]['node_resource_type'] = node.split(".")[0]
+            node_dependencies = [x for x in self.parent_map_data[node] if
+                                 "source." not in x]  # this removes dbt source dependencies of the original list data["nodes"][node]["depends_on"]["nodes"]
+            node_dependencies_distinct = list(dict.fromkeys(node_dependencies))
+
+            self.dbt_nodes[node]['node_depends_on'] = node_dependencies_distinct
+
+        for parent_node in self.parent_map_data[node]:
+            self.iterate_parent_nodes(parent_node)
 
     def make_dbt_task(self, node_name, node_resource_type):
         """Returns an Airflow operator"""
@@ -77,41 +125,26 @@ class DbtDagParser:
 
         return dbt_task
 
+
     def make_dbt_task_groups(self):
 
-        #load manifest file to compile airflow code
-        data = self.load_manifest()
-        #print(json.dumps(data, indent=1))
-
-        #add model/snapshot node info to dbt_nodes
-        dbt_nodes = {}
-
-        for node in data["nodes"].keys():
-            if node.split(".")[0] == "model" or node.split(".")[0] == "snapshot" or node.split(".")[0] == "seed":
-
-                dbt_nodes[node] = {}
-
-                dbt_nodes[node]['node_name'] = node.split(".")[-1]
-                #dbt_nodes[node]['node_compiled'] = data["nodes"][node]["compiled"]
-                dbt_nodes[node]['node_resource_type'] = data["nodes"][node]["resource_type"]
-
-                #dependencies: the manifest file might generate duplicate dependencies within the same node
-                #therefor we create a list with the distinct values
-                node_dependencies = [ x for x in data["nodes"][node]["depends_on"]["nodes"] if "source." not in x ] #this removes dbt source dependencies of the original list data["nodes"][node]["depends_on"]["nodes"]
-                node_dependencies_distinct = list(dict.fromkeys(node_dependencies))
-
-                dbt_nodes[node]['node_depends_on'] = node_dependencies_distinct
+        # check if parameter model_run <> all
+        if self.dbt_model_run == 'all':
+            self.generate_all_nodes()
+        else:
+            if self.dbt_model_run in self.parent_map_data:
+                self.iterate_parent_nodes(self.dbt_model_run)
 
         #create a bashoperator per dbt node, this must be done before creating the airflow order dependency
         airflow_operators = {}
 
-        for node in dbt_nodes:
-            airflow_operators[node] = self.make_dbt_task(dbt_nodes[node]["node_name"], dbt_nodes[node]["node_resource_type"])
+        for node in self.dbt_nodes:
+            airflow_operators[node] = self.make_dbt_task(self.dbt_nodes[node]["node_name"], self.dbt_nodes[node]["node_resource_type"])
 
         #after creating the bash operators we must determine the scheduling order of the operators
-        for node in dbt_nodes:
+        for node in self.dbt_nodes:
 
-                node_dependencies = dbt_nodes[node]["node_depends_on"]
+                node_dependencies = self.dbt_nodes[node]["node_depends_on"]
 
                 # check if there are node dependancies, because nodes without dependencies could exist
                 if(len(node_dependencies) == 0):
