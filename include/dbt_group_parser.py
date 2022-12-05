@@ -46,7 +46,7 @@ class DbtDagParser:
         self.dbt_model_run = dbt_model_run
 
         # load manifest file to compile airflow code
-        self.data = self.load_manifest()
+        #self.data = self.load_manifest()
         # print(json.dumps(data, indent=1))
 
         #self.parent_map_data = self.parent_mapping_data()
