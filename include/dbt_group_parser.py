@@ -59,7 +59,9 @@ class DbtDagParser:
         self.make_dbt_task_groups()
 
     def load_manifest(self):
-        local_filepath = "" + self.dbt_manifest_filepath #"/home/gunther/dh_datastack_dbt/dh_datastack_marketing/target/manifest.json" #"C:/Users/GuntherMeert/Downloads/manifest.json"
+        if self.dbt_manifest_filepath is not None:
+            local_filepath = self.dbt_manifest_filepath #"/home/gunther/dh_datastack_dbt/dh_datastack_marketing/target/manifest.json" #"C:/Users/GuntherMeert/Downloads/manifest.json"
+
         with open(local_filepath) as f:
             data = json.load(f)
 
