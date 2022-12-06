@@ -156,7 +156,7 @@ class DbtDagParser:
             task_group=self.dbt_run_group,
             bash_command=f"""
             cd {self.dbt_project_dir} &&
-            {FRESHNESS_COMMAND} 
+            {FRESHNESS_COMMAND if FRESHNESS_COMMAND is not None else ""} 
             dbt {self.dbt_global_cli_flags} {DBT_COMMAND} --target dev --select {node_name} &&
             dbt {self.dbt_global_cli_flags} test --target dev --select {node_name}
             """,
