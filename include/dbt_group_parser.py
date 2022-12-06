@@ -102,11 +102,11 @@ class DbtDagParser:
                 list_source_freshness_nodes = self.source_freshness_nodes()
                 node_freshness_dependencies = [x for x in self.data["nodes"][node]["depends_on"]["nodes"] if "source." in x]
 
+                self.dbt_nodes[node]['freshness_dependency'] = ""
+
                 for node_freshness_dependency in node_freshness_dependencies:
                     if node_freshness_dependency in list_source_freshness_nodes:
                         self.dbt_nodes[node]['freshness_dependency'] = node_freshness_dependency
-                    else:
-                        self.dbt_nodes[node]['freshness_dependency'] = ""
 
     def iterate_parent_nodes(self, node):
         # iterate over every node it's dependencies to see if that node has more depencies, so we can build parents from parents
@@ -125,11 +125,11 @@ class DbtDagParser:
             list_source_freshness_nodes = self.source_freshness_nodes()
             node_freshness_dependencies = [x for x in self.data["nodes"][node]["depends_on"]["nodes"] if "source." in x]
 
+            self.dbt_nodes[node]['freshness_dependency'] = ""
+
             for node_freshness_dependency in node_freshness_dependencies:
                 if node_freshness_dependency in list_source_freshness_nodes:
                     self.dbt_nodes[node]['freshness_dependency'] = node_freshness_dependency
-                else:
-                    self.dbt_nodes[node]['freshness_dependency'] = ""
 
         for parent_node in self.parent_map_data[node]:
             self.iterate_parent_nodes(parent_node)

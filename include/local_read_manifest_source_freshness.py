@@ -50,11 +50,12 @@ def generate_all_nodes():
             list_source_freshness_nodes = source_freshness_nodes()
             node_freshness_dependencies = [x for x in data["nodes"][node]["depends_on"]["nodes"] if "source." in x]
 
+            dbt_nodes[node]['freshness_dependency'] = ""
+
             for node_freshness_dependency in node_freshness_dependencies:
                 if node_freshness_dependency in list_source_freshness_nodes:
-                    dbt_nodes[node]['freshness_check'] = node_freshness_dependency
-                else:
-                    dbt_nodes[node]['freshness_check'] = ""
+                    dbt_nodes[node]['freshness_dependency'] = node_freshness_dependency
+
 
 
 def iterate_parent_nodes(node):
@@ -73,11 +74,11 @@ def iterate_parent_nodes(node):
         list_source_freshness_nodes = source_freshness_nodes()
         node_freshness_dependencies = [x for x in data["nodes"][node]["depends_on"]["nodes"] if "source." in x]
 
+        dbt_nodes[node]['freshness_dependency'] = ""
+
         for node_freshness_dependency in node_freshness_dependencies:
             if node_freshness_dependency in list_source_freshness_nodes:
-                dbt_nodes[node]['freshness_check'] = node_freshness_dependency
-            else:
-                dbt_nodes[node]['freshness_check'] = ""
+                dbt_nodes[node]['freshness_dependency'] = node_freshness_dependency
 
     for parent_node in parent_map_data[node]:
         iterate_parent_nodes(parent_node)
