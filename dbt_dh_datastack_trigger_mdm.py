@@ -15,6 +15,7 @@ with DAG(
     dag_id='dbt_dh_datastack_trigger_mdm',
     start_date=datetime(2022, 11, 7),
     description='dbt dag to trigger mdm',
+    schedule_interval=None,
     max_active_runs=1,
     catchup=False
 ) as dag:
