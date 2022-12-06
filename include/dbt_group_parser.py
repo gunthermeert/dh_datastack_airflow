@@ -145,7 +145,7 @@ class DbtDagParser:
             DBT_COMMAND = "seed"
 
         if len(freshness_dependency) > 0:
-            source_freshness = freshness_dependency.split(".")[-2] + freshness_dependency.split(".")[-1] #we only want the source + modelname
+            source_freshness = freshness_dependency.split(".")[-2] + '.' + freshness_dependency.split(".")[-1] #we only want the source + modelname
             FRESHNESS_COMMAND = f"""dbt source freshness --select source:{source_freshness} &&"""
         else:
             FRESHNESS_COMMAND = ""
