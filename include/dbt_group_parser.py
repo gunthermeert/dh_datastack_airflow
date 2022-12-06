@@ -146,17 +146,19 @@ class DbtDagParser:
 
         if len(freshness_dependency) > 0:
             source_freshness = freshness_dependency.split(".")[-2] + freshness_dependency.split(".")[-1] #we only want the source + modelname
-            FRESHNESS_COMMAND == f"""dbt source freshness --select source:{source_freshness} &&"""
+            #FRESHNESS_COMMAND == f"""dbt source freshness --select source:{source_freshness} &&"""
+            FRESHNESS_COMMAND == "echo groter dan 0 &&"
         else:
-            FRESHNESS_COMMAND == ""
+            FRESHNESS_COMMAND == "echo kleiner dan 0 &&"
 
+        #{FRESHNESS_COMMAND if FRESHNESS_COMMAND is not None else ""}
 
         dbt_task = BashOperator(
             task_id=node_name,
             task_group=self.dbt_run_group,
             bash_command=f"""
             cd {self.dbt_project_dir} &&
-            {FRESHNESS_COMMAND if FRESHNESS_COMMAND is not None else ""} 
+            {FRESHNESS_COMMAND}
             dbt {self.dbt_global_cli_flags} {DBT_COMMAND} --target dev --select {node_name} &&
             dbt {self.dbt_global_cli_flags} test --target dev --select {node_name}
             """,
