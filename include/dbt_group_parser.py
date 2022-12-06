@@ -6,6 +6,7 @@ from airflow.operators.bash import BashOperator
 from airflow.utils.task_group import TaskGroup
 
 DBT_COMMAND = None
+FRESHNESS_COMMAND = None
 
 class DbtDagParser:
     """
@@ -69,6 +70,18 @@ class DbtDagParser:
         data = self.load_manifest()
         return data["parent_map"]
 
+    # check if source tables have freshness on them
+    def source_freshness_nodes(self):
+        source_freshness_nodes = []
+        data = self.load_manifest()
+
+        for node in data["sources"].keys():
+            if node.split(".")[0] == "source": #check that's possibly not needed
+                if data["sources"][node]["freshness"]['error_after']['count'] != None: #we only want to keep sources that have a freshness defined on error
+                    source_freshness_nodes.append(node)
+
+        return source_freshness_nodes #list that will be checked when comparing node dependencies
+
     def generate_all_nodes(self):
         for node in self.data["nodes"].keys():
             if node.split(".")[0] == "model" or node.split(".")[0] == "snapshot" or node.split(".")[0] == "seed":
@@ -85,6 +98,16 @@ class DbtDagParser:
 
                 self.dbt_nodes[node]['node_depends_on'] = node_dependencies_distinct
 
+                # check if we need to implement a source_freshness_check
+                list_source_freshness_nodes = self.source_freshness_nodes()
+                node_freshness_dependencies = [x for x in self.data["nodes"][node]["depends_on"]["nodes"] if "source." in x]
+
+                for node_freshness_dependency in node_freshness_dependencies:
+                    if node_freshness_dependency in list_source_freshness_nodes:
+                        self.dbt_nodes[node]['freshness_dependency'] = node_freshness_dependency
+                    else:
+                        self.dbt_nodes[node]['freshness_dependency'] = ""
+
     def iterate_parent_nodes(self, node):
         # iterate over every node it's dependencies to see if that node has more depencies, so we can build parents from parents
         if node.split(".")[0] == "model" or node.split(".")[0] == "snapshot" or node.split(".")[0] == "seed":
@@ -98,10 +121,20 @@ class DbtDagParser:
 
             self.dbt_nodes[node]['node_depends_on'] = node_dependencies_distinct
 
+            # check if we need to implement a source_freshness_check
+            list_source_freshness_nodes = self.source_freshness_nodes()
+            node_freshness_dependencies = [x for x in self.data["nodes"][node]["depends_on"]["nodes"] if "source." in x]
+
+            for node_freshness_dependency in node_freshness_dependencies:
+                if node_freshness_dependency in list_source_freshness_nodes:
+                    self.dbt_nodes[node]['freshness_dependency'] = node_freshness_dependency
+                else:
+                    self.dbt_nodes[node]['freshness_dependency'] = ""
+
         for parent_node in self.parent_map_data[node]:
             self.iterate_parent_nodes(parent_node)
 
-    def make_dbt_task(self, node_name, node_resource_type):
+    def make_dbt_task(self, node_name, node_resource_type, freshness_dependency):
         """Returns an Airflow operator"""
 
         if node_resource_type == "model":
@@ -111,12 +144,19 @@ class DbtDagParser:
         if node_resource_type == "seed":
             DBT_COMMAND = "seed"
 
+        if len(freshness_dependency) > 0:
+            source_freshness = freshness_dependency.split(".")[-2] + freshness_dependency.split(".")[-1] #we only want the source + modelname
+            FRESHNESS_COMMAND == f"""dbt source freshness --select source:{source_freshness}"""
+        else:
+            FRESHNESS_COMMAND == ""
+
 
         dbt_task = BashOperator(
             task_id=node_name,
             task_group=self.dbt_run_group,
             bash_command=f"""
             cd {self.dbt_project_dir} &&
+            {FRESHNESS_COMMAND} &&
             dbt {self.dbt_global_cli_flags} {DBT_COMMAND} --target dev --select {node_name} &&
             dbt {self.dbt_global_cli_flags} test --target dev --select {node_name}
             """,
@@ -139,7 +179,7 @@ class DbtDagParser:
         airflow_operators = {}
 
         for node in self.dbt_nodes:
-            airflow_operators[node] = self.make_dbt_task(self.dbt_nodes[node]["node_name"], self.dbt_nodes[node]["node_resource_type"])
+            airflow_operators[node] = self.make_dbt_task(self.dbt_nodes[node]["node_name"], self.dbt_nodes[node]["node_resource_type"], self.dbt_nodes[node]["freshness_dependency"])
 
         #after creating the bash operators we must determine the scheduling order of the operators
         for node in self.dbt_nodes:
