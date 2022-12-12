@@ -10,7 +10,7 @@ from pendulum import datetime
 from airflow import DAG
 from airflow.operators.dummy import DummyOperator
 from airflow.operators.bash import BashOperator
-from include.dbt_dag_parser import DbtDagParser
+from include.dbt_dag_parser_original import DbtDagParser
 
 # We're hardcoding these values here for the purpose of the demo, but in a production environment these
 # would probably come from a config file and/or environment variables!
