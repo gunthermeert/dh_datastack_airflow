@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.insert(1, '../include/')
+sys.path.insert(1, '/opt/airflow/dags/include')
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy import DummyOperator
