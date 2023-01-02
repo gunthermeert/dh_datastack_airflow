@@ -28,17 +28,6 @@ with DAG(
 ) as dag:
     start_dummy = DummyOperator(task_id="start")
 
-    #update deps
-    dbt_update_packages = BashOperator(
-        task_id="dbt_update_packages",
-        bash_command=
-            f"""
-            cd {DBT_PROJECT_DIR} &&
-            dbt deps
-            """,
-            dag=dag,
-    )
-
     # test all sources
     dbt_source_test = BashOperator(
         task_id="dbt_source_test",
@@ -66,4 +55,4 @@ with DAG(
 
     end_dummy = DummyOperator(task_id="end")
 
-    start_dummy >> dbt_update_packages >> dbt_source_test >> dbt_run_group >> end_dummy
+    start_dummy >> dbt_source_test >> dbt_run_group >> end_dummy

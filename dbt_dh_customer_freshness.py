@@ -21,23 +21,13 @@ DBT_MODEL_RUN = "model.dh_datastack_mdm.stg_dh_shop__customers" #"model.dh_datas
 with DAG(
     dag_id='dbt_dh_customer_freshness',
     start_date=datetime(2022, 11, 7),
-    description='dbt dag that builds an airflow dag dynamically by reading manifest',
+    description='dbt dag that builds an airflow dag dynamically by reading dbt manifest.json',
     schedule_interval="0 10 * * *",
     max_active_runs=1,
     catchup=False
 ) as dag:
     start_dummy = DummyOperator(task_id="start")
 
-    #update deps
-    dbt_update_packages = BashOperator(
-        task_id="dbt_update_packages",
-        bash_command=
-            f"""
-            cd {DBT_PROJECT_DIR} &&
-            dbt deps
-            """,
-            dag=dag,
-    )
 
     # test all sources
     dbt_source_test = BashOperator(
@@ -66,4 +56,4 @@ with DAG(
 
     end_dummy = DummyOperator(task_id="end")
 
-    start_dummy >> dbt_update_packages >> dbt_source_test >> dbt_run_group >> end_dummy
+    start_dummy >> dbt_source_test >> dbt_run_group >> end_dummy
