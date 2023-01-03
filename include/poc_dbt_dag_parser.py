@@ -157,9 +157,10 @@ class DbtDagParser:
         if node_resource_type == "source":
 
             source_freshness = node_name.split(".")[-2] + '.' + node_name.split(".")[-1]  # we only want the source + modelname
+            task_id_name = f'freshness_check_{source_freshness}'
 
             dbt_task = BashOperator(
-                task_id=node_name,
+                task_id=task_id_name,
                 task_group=self.dbt_run_group,
                 bash_command=f"""
                 cd {self.dbt_project_dir} &&
