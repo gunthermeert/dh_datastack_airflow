@@ -176,10 +176,11 @@ class DbtDagParser:
 
         if node_resource_type == "refresh":
 
-            source_freshness = node_name.split(".")[-2] + '.' + node_name.split(".")[-1]  # we only want the source + modelname
-            task_id_name = f'refresh_{source_freshness}'
+           #source_freshness = node_name.split(".")[-2] + '.' + node_name.split(".")[-1]  # we only want the source + modelname
+           # task_id_name = f'refresh_{source_freshness}'
+           task_id_name = 'refresh_customer'
 
-            dbt_task = TriggerDagRunOperator(
+           dbt_task = TriggerDagRunOperator(
                 task_id=task_id_name,
                 task_group=self.dbt_run_group,
                 trigger_dag_id='dbt_dh_customer_freshness',
@@ -208,7 +209,7 @@ class DbtDagParser:
 
             if len(self.dbt_nodes[node]["freshness_dependency"]) > 0:
                 airflow_operators[self.dbt_nodes[node]["freshness_dependency"]] = self.make_dbt_task(self.dbt_nodes[node]["freshness_dependency"], "source", "")
-                airflow_operators[f'{self.dbt_nodes[node]["freshness_dependency"]}_refresh'] = self.make_dbt_task(f'{self.dbt_nodes[node]["freshness_dependency"]}_refresh', "refresh", "")
+                airflow_operators['_refresh'] = self.make_dbt_task('_refresh', "refresh", "")
 
         #after creating the bash operators we must determine the scheduling order of the operators
         for node in self.dbt_nodes:
@@ -222,7 +223,7 @@ class DbtDagParser:
                     for dependency in node_dependencies:
                         if "source." in dependency:
                             airflow_operators[dependency] >> airflow_operators[node]
-                            airflow_operators[dependency] >> airflow_operators[f'{dependency}_refresh'] >> airflow_operators[node]
+                            airflow_operators[dependency] >> airflow_operators['_refresh'] >> airflow_operators[node]
                         else:
                             airflow_operators[dependency] >> airflow_operators[node]
 
