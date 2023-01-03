@@ -165,6 +165,7 @@ class DbtDagParser:
                 task_id=node_name,
                 task_group=self.dbt_run_group,
                 bash_command=f"""
+                cd {self.dbt_project_dir} &&
                 dbt source freshness --select source:dh_datastack_mdm.CUSTOMERS
                 """,
                 dag=self.dag,
