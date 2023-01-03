@@ -103,7 +103,11 @@ else:
 #print(dbt_nodes)
 
 for node in dbt_nodes:
-    print(len(dbt_nodes[node]["freshness_dependency"]))
+    node_dependencies = dbt_nodes[node]["node_depends_on"]
+    for dependency in node_dependencies:
+        print(dependency)
+
+print(dbt_nodes)
 
 
 """

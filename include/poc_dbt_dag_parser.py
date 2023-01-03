@@ -204,7 +204,8 @@ class DbtDagParser:
                     airflow_operators[node]
                 else:
                     for dependency in node_dependencies:
-                        airflow_operators[dependency] >> airflow_operators[node]
+                        #airflow_operators[dependency] >> airflow_operators[node]
+                        airflow_operators['source.dh_datastack_marketing.dh_datastack_mdm.CUSTOMERS'] >> airflow_operators['stg_dh_datastack_mdm__customers']
 
     def get_dbt_run_group(self):
         """
