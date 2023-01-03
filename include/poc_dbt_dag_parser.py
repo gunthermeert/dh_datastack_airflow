@@ -90,8 +90,7 @@ class DbtDagParser:
 
                 # dependencies: the manifest file might generate duplicate dependencies within the same node
                 # therefor we create a list with the distinct values
-                node_dependencies = [x for x in self.data["nodes"][node]["depends_on"]["nodes"] if
-                                     "source." not in x]  # this removes dbt source dependencies of the original list data["nodes"][node]["depends_on"]["nodes"]
+                node_dependencies = [x for x in self.data["nodes"][node]["depends_on"]["nodes"]]  # this removes dbt source dependencies of the original list data["nodes"][node]["depends_on"]["nodes"]
                 node_dependencies_distinct = list(dict.fromkeys(node_dependencies))
 
                 self.dbt_nodes[node]['node_depends_on'] = node_dependencies_distinct
@@ -113,8 +112,7 @@ class DbtDagParser:
 
             self.dbt_nodes[node]['node_name'] = node.split(".")[-1]
             self.dbt_nodes[node]['node_resource_type'] = node.split(".")[0]
-            node_dependencies = [x for x in self.parent_map_data[node] if
-                                 "source." not in x]  # this removes dbt source dependencies of the original list data["nodes"][node]["depends_on"]["nodes"]
+            node_dependencies = [x for x in self.parent_map_data[node]]  # this removes dbt source dependencies of the original list data["nodes"][node]["depends_on"]["nodes"]
             node_dependencies_distinct = list(dict.fromkeys(node_dependencies))
 
             self.dbt_nodes[node]['node_depends_on'] = node_dependencies_distinct
@@ -204,8 +202,7 @@ class DbtDagParser:
                     airflow_operators[node]
                 else:
                     for dependency in node_dependencies:
-                        #airflow_operators[dependency] >> airflow_operators[node]
-                        airflow_operators['source.dh_datastack_marketing.dh_datastack_mdm.CUSTOMERS'] >> airflow_operators['stg_dh_datastack_mdm__customers']
+                        airflow_operators[dependency] >> airflow_operators[node]
 
     def get_dbt_run_group(self):
         """
