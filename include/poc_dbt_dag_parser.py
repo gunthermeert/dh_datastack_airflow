@@ -191,9 +191,8 @@ class DbtDagParser:
         for node in self.dbt_nodes:
             airflow_operators[node] = self.make_dbt_task(self.dbt_nodes[node]["node_name"], self.dbt_nodes[node]["node_resource_type"], self.dbt_nodes[node]["freshness_dependency"])
 
-        list_source_freshness_nodes = self.source_freshness_nodes()
-        for node in list_source_freshness_nodes:
-            airflow_operators[node] = self.make_dbt_task(node, "source", "")
+            for source_node in self.dbt_nodes[node]["freshness_dependency"]:
+                airflow_operators[source_node] = self.make_dbt_task(source_node, "source", "")
 
 
         #after creating the bash operators we must determine the scheduling order of the operators
