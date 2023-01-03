@@ -100,7 +100,11 @@ else:
         iterate_parent_nodes(model_run)
 
 
-print(dbt_nodes)
+#print(dbt_nodes)
+
+for node in dbt_nodes:
+    print(len(dbt_nodes[node]["freshness_dependency"]))
+
 
 """
 # create a bashoperator per dbt node, this must be done before creating the airflow order dependency
