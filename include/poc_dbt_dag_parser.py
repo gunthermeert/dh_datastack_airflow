@@ -133,7 +133,7 @@ class DbtDagParser:
 
     def make_dbt_task(self, node_name, node_resource_type, freshness_dependency):
         """Returns an Airflow operator"""
-        if node_resource_type == "model" or node_resource_type == "snapshot" or node_resource_type = "seed":
+        if node_resource_type == "model" or node_resource_type == "snapshot" or node_resource_type == "seed":
 
             if node_resource_type == "model":
                 DBT_COMMAND = "run"
