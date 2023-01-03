@@ -4,6 +4,7 @@ import os
 import subprocess
 from airflow.operators.bash import BashOperator
 from airflow.utils.task_group import TaskGroup
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
 
 class DbtDagParser:
@@ -141,11 +142,15 @@ class DbtDagParser:
             if node_resource_type == "seed":
                 DBT_COMMAND = "seed"
 
-            #if len(freshness_dependency) > 0:
+            if len(freshness_dependency) > 0:
+                trigger_rule_setting = 'one_success'
+            else:
+                trigger_rule_setting = 'all_success'
 
             dbt_task = BashOperator(
                 task_id=node_name,
                 task_group=self.dbt_run_group,
+                trigger_rule=trigger_rule_setting,
                 bash_command=f"""
                 cd {self.dbt_project_dir} &&
                 dbt {self.dbt_global_cli_flags} {DBT_COMMAND} --target dev --select {node_name} &&
@@ -169,6 +174,19 @@ class DbtDagParser:
                 dag=self.dag,
             )
 
+        if node_resource_type == "refresh":
+
+            source_freshness = node_name.split(".")[-2] + '.' + node_name.split(".")[-1]  # we only want the source + modelname
+            task_id_name = f'refresh_{source_freshness}'
+
+            dbt_task = TriggerDagRunOperator(
+                task_id=task_id_name,
+                task_group=self.dbt_run_group,
+                trigger_dag_id='dbt_dh_customer_freshness',
+                wait_for_completion=True,
+                trigger_rule='all_failed',
+                dag=self.dag,
+            )
 
         return dbt_task
 
@@ -190,6 +208,7 @@ class DbtDagParser:
 
             if len(self.dbt_nodes[node]["freshness_dependency"]) > 0:
                 airflow_operators[self.dbt_nodes[node]["freshness_dependency"]] = self.make_dbt_task(self.dbt_nodes[node]["freshness_dependency"], "source", "")
+                airflow_operators[self.dbt_nodes[node]["freshness_dependency"] + '_refresh'] = self.make_dbt_task(self.dbt_nodes[node]["freshness_dependency"] + '_refresh', "refresh", "")
 
         #after creating the bash operators we must determine the scheduling order of the operators
         for node in self.dbt_nodes:
@@ -201,7 +220,11 @@ class DbtDagParser:
                     airflow_operators[node]
                 else:
                     for dependency in node_dependencies:
-                        airflow_operators[dependency] >> airflow_operators[node]
+                        if "source." in dependency:
+                            airflow_operators[dependency] >> airflow_operators[node]
+                            airflow_operators[dependency] >> airflow_operators[dependency + '_refresh'] >> airflow_operators[node]
+                        else:
+                            airflow_operators[dependency] >> airflow_operators[node]
 
     def get_dbt_run_group(self):
         """
