@@ -141,18 +141,13 @@ class DbtDagParser:
             if node_resource_type == "seed":
                 DBT_COMMAND = "seed"
 
-            if len(freshness_dependency) > 0:
-                source_freshness = freshness_dependency.split(".")[-2] + '.' + freshness_dependency.split(".")[-1] #we only want the source + modelname
-                FRESHNESS_COMMAND = f"""dbt source freshness --select source:{source_freshness} &&"""
-            else:
-                FRESHNESS_COMMAND = ""
+            #if len(freshness_dependency) > 0:
 
             dbt_task = BashOperator(
                 task_id=node_name,
                 task_group=self.dbt_run_group,
                 bash_command=f"""
                 cd {self.dbt_project_dir} &&
-                {FRESHNESS_COMMAND if FRESHNESS_COMMAND is not None else ""}
                 dbt {self.dbt_global_cli_flags} {DBT_COMMAND} --target dev --select {node_name} &&
                 dbt {self.dbt_global_cli_flags} test --target dev --select {node_name}
                 """,
@@ -161,12 +156,14 @@ class DbtDagParser:
 
         if node_resource_type == "source":
 
+            source_freshness = node_name.split(".")[-2] + '.' + node_name.split(".")[-1]  # we only want the source + modelname
+
             dbt_task = BashOperator(
                 task_id=node_name,
                 task_group=self.dbt_run_group,
                 bash_command=f"""
                 cd {self.dbt_project_dir} &&
-                dbt source freshness --select source:dh_datastack_mdm.CUSTOMERS
+                dbt source freshness --select source:{source_freshness}
                 """,
                 dag=self.dag,
             )
