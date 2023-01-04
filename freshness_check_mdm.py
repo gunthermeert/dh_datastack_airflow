@@ -24,14 +24,6 @@ with DAG(
 ) as dag:
     start_dummy = DummyOperator(task_id="start")
 
-    #dag_run.conf.get['message'],
-
-    bash = BashOperator(
-        task_id="bash",
-        bash_command="echo dit is een parameter test: {{ params.freshness_hours }}",
-        dag=dag,
-    )
-
     freshness_check = BashOperator(
         task_id="freshness_check",
         bash_command="cd /home/gunther/dh_datastack_dbt/dh_datastack_mdm && dbt source freshness --select source:mdm_freshness_{{ params.freshness_hours }}_hour.{{ params.freshness_table }}",
@@ -55,5 +47,5 @@ with DAG(
 
     end_dummy = DummyOperator(task_id="end", trigger_rule="one_success")
 
-    bash >> start_dummy >> freshness_check >> end_dummy
-    bash >> start_dummy >> freshness_check >> refresh_trigger >> freshness_check_validation >> end_dummy
+    start_dummy >> freshness_check >> end_dummy
+    start_dummy >> freshness_check >> refresh_trigger >> freshness_check_validation >> end_dummy
