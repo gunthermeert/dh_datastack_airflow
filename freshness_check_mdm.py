@@ -31,7 +31,7 @@ with DAG(
 
     refresh_trigger = TriggerDagRunOperator(
         task_id="refresh_trigger",
-        trigger_dag_id="refresh_dh_datastack_mdm_{{ params.freshness_table }}",
+        trigger_dag_id="refresh_dh_datastack_mdm_{{ params.freshness_table_lowercase }}",
         wait_for_completion=True,
         trigger_rule='all_failed',  # only if the first freshness task failed
         dag=dag,
