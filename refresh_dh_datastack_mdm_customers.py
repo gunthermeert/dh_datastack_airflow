@@ -11,22 +11,23 @@ from airflow.decorators import dag, task
 
 # We're hardcoding these values here for the purpose of the demo, but in a production environment these
 # would probably come from a config file and/or environment variables!
-DBT_PROJECT_DIR = os.getenv('DBT_PROJECT_DIR_FINANCE') # DBT_PROJECT_DIR = /dh_datastack_dbt/dh_datastack
+DBT_PROJECT_DIR = os.getenv('DBT_PROJECT_DIR_MDM') # DBT_PROJECT_DIR = /dh_datastack_dbt/dh_datastack
 DBT_PROFILES_DIR = os.getenv('DBT_PROFILES_DIR') # DBT_PROFILES_DIR = /dh_datastack_dbt/.dbt
 DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
-DBT_MANIFEST_FILEPATH = "/home/gunther/dh_datastack_dbt/dh_datastack_finance/target/manifest.json"
-DBT_MODEL_RUN = "model.dh_datastack_finance.daily_product_sales" #"model.dh_datastack.int_finance__product_sales" #"model.dh_datastack.stg_dh_shop__customers"
+DBT_MANIFEST_FILEPATH = "/home/gunther/dh_datastack_dbt/dh_datastack_mdm/target/manifest.json"
+DBT_MODEL_RUN = "model.dh_datastack_mdm.stg_dh_shop__customers" #"model.dh_datastack.int_finance__product_sales" #"model.dh_datastack.stg_dh_shop__customers"
 
 with DAG(
-    dag_id='dbt_dh_product_sales_freshness',
+    dag_id='refresh_dh_datastack_mdm_customers',
     start_date=datetime(2022, 11, 7),
-    description='dbt dag that builds an airflow dag dynamically by reading manifest',
+    description='dbt dag that builds an airflow dag dynamically by reading dbt manifest.json',
     schedule_interval="0 10 * * *",
     max_active_runs=1,
     catchup=False
 ) as dag:
     start_dummy = DummyOperator(task_id="start")
+
 
     # test all sources
     dbt_source_test = BashOperator(

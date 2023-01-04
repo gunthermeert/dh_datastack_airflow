@@ -179,10 +179,12 @@ class DbtDagParser:
            source_freshness = node_name.split(".")[-2] + '.' + node_name.split(".")[-1]  # we only want the source + modelname
            task_id_name = f'refresh_{source_freshness}'
 
+           dag_id_name = task_id_name.replace(".", "_").lower()
+
            dbt_task = TriggerDagRunOperator(
                 task_id=task_id_name,
                 task_group=self.dbt_run_group,
-                trigger_dag_id='dbt_dh_customer_freshness',
+                trigger_dag_id=dag_id_name,
                 wait_for_completion=True,
                 trigger_rule='all_failed',
                 dag=self.dag,
