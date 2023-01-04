@@ -3,6 +3,7 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.utils.dates import datetime
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
+from airflow.decorators import task
 from airflow.models.param import Param
 
 
@@ -22,6 +23,14 @@ with DAG(
     catchup=False
 ) as dag:
     start_dummy = DummyOperator(task_id="start")
+
+    #dag_run.conf.get['message'],
+
+    bash = BashOperator(
+        task_id="bash",
+        bash_command="echo dit is een parameter test: {{ params.message }} variable test: {DBT_PROJECT_DIR}",
+        dag=dag,
+    )
 
     freshness_check = BashOperator(
         task_id="freshness_check",
@@ -46,5 +55,5 @@ with DAG(
 
     end_dummy = DummyOperator(task_id="end", trigger_rule="one_success")
 
-    start_dummy >> freshness_check >> end_dummy
-    start_dummy >> freshness_check >> refresh_trigger >> freshness_check_validation >> end_dummy
+    bash >> start_dummy >> freshness_check >> end_dummy
+    bash >> start_dummy >> freshness_check >> refresh_trigger >> freshness_check_validation >> end_dummy
