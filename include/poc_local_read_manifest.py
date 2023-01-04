@@ -7,7 +7,7 @@ DBT_PROJECT_DIR = os.getenv('DBT_PROJECT_DIR') # DBT_PROJECT_DIR = /dh_datastack
 DBT_PROFILES_DIR = os.getenv('DBT_PROFILES_DIR') # DBT_PROFILES_DIR = /dh_datastack_dbt/.dbt
 DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
-model_run = "model.dh_datastack_marketing.stg_dh_datastack_mdm__customers"#"model.dh_datastack_marketing.stg_dh_datastack_mdm__customers
+model_run = "model.dh_datastack_marketing.stg_active_campaign__campaigns" #"model.dh_datastack_marketing.stg_dh_datastack_mdm__customers"
 
 
 def load_manifest():
@@ -42,7 +42,7 @@ def generate_all_nodes():
 
             # dependencies: the manifest file might generate duplicate dependencies within the same node
             # therefor we create a list with the distinct values
-            node_dependencies = [x for x in data["nodes"][node]["depends_on"]["nodes"]]  # this removes dbt source dependencies of the original list data["nodes"][node]["depends_on"]["nodes"]
+            node_dependencies = [x for x in data["nodes"][node]["depends_on"]["nodes"] if "source." not in x]  # this removes dbt source dependencies of the original list data["nodes"][node]["depends_on"]["nodes"]
             node_dependencies_distinct = list(dict.fromkeys(node_dependencies))
             dbt_nodes[node]['node_depends_on'] = node_dependencies_distinct
 
@@ -55,6 +55,7 @@ def generate_all_nodes():
             for node_freshness_dependency in node_freshness_dependencies:
                 if node_freshness_dependency in list_source_freshness_nodes:
                     dbt_nodes[node]['freshness_dependency'] = node_freshness_dependency
+                    dbt_nodes[node]['node_depends_on'].append(node_freshness_dependency)
 
 
 
@@ -65,7 +66,7 @@ def iterate_parent_nodes(node):
 
         dbt_nodes[node]['node_name'] = node.split(".")[-1]
         dbt_nodes[node]['node_resource_type'] = node.split(".")[0]
-        node_dependencies = [x for x in parent_map_data[node]]  # this removes dbt source dependencies of the original list data["nodes"][node]["depends_on"]["nodes"]
+        node_dependencies = [x for x in parent_map_data[node] if "source." not in x]  # this removes dbt source dependencies of the original list data["nodes"][node]["depends_on"]["nodes"]
         node_dependencies_distinct = list(dict.fromkeys(node_dependencies))
 
         dbt_nodes[node]['node_depends_on'] = node_dependencies_distinct
@@ -79,6 +80,7 @@ def iterate_parent_nodes(node):
         for node_freshness_dependency in node_freshness_dependencies:
             if node_freshness_dependency in list_source_freshness_nodes:
                 dbt_nodes[node]['freshness_dependency'] = node_freshness_dependency
+                dbt_nodes[node]['node_depends_on'].append(node_freshness_dependency)
 
     for parent_node in parent_map_data[node]:
         iterate_parent_nodes(parent_node)

@@ -91,7 +91,7 @@ class DbtDagParser:
 
                 # dependencies: the manifest file might generate duplicate dependencies within the same node
                 # therefor we create a list with the distinct values
-                node_dependencies = [x for x in self.data["nodes"][node]["depends_on"]["nodes"]]  # this removes dbt source dependencies of the original list data["nodes"][node]["depends_on"]["nodes"]
+                node_dependencies = [x for x in self.data["nodes"][node]["depends_on"]["nodes"] if "source." not in x]  # this removes dbt source dependencies of the original list data["nodes"][node]["depends_on"]["nodes"]
                 node_dependencies_distinct = list(dict.fromkeys(node_dependencies))
 
                 self.dbt_nodes[node]['node_depends_on'] = node_dependencies_distinct
@@ -105,6 +105,7 @@ class DbtDagParser:
                 for node_freshness_dependency in node_freshness_dependencies:
                     if node_freshness_dependency in list_source_freshness_nodes:
                         self.dbt_nodes[node]['freshness_dependency'] = node_freshness_dependency
+                        self.dbt_nodes[node]['node_depends_on'].append(node_freshness_dependency)
 
     def iterate_parent_nodes(self, node):
         # iterate over every node it's dependencies to see if that node has more depencies, so we can build parents from parents
@@ -113,7 +114,7 @@ class DbtDagParser:
 
             self.dbt_nodes[node]['node_name'] = node.split(".")[-1]
             self.dbt_nodes[node]['node_resource_type'] = node.split(".")[0]
-            node_dependencies = [x for x in self.parent_map_data[node]]  # this removes dbt source dependencies of the original list data["nodes"][node]["depends_on"]["nodes"]
+            node_dependencies = [x for x in self.parent_map_data[node] if "source." not in x]  # this removes dbt source dependencies of the original list data["nodes"][node]["depends_on"]["nodes"]
             node_dependencies_distinct = list(dict.fromkeys(node_dependencies))
 
             self.dbt_nodes[node]['node_depends_on'] = node_dependencies_distinct
@@ -127,6 +128,7 @@ class DbtDagParser:
             for node_freshness_dependency in node_freshness_dependencies:
                 if node_freshness_dependency in list_source_freshness_nodes:
                     self.dbt_nodes[node]['freshness_dependency'] = node_freshness_dependency
+                    self.dbt_nodes[node]['node_depends_on'].append(node_freshness_dependency)
 
         for parent_node in self.parent_map_data[node]:
             self.iterate_parent_nodes(parent_node)
