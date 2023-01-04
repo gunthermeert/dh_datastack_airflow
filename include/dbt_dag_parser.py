@@ -60,7 +60,7 @@ class DbtDagParser:
 
     #reading out manifest.json file which is build by dbt
     def load_manifest(self):
-        local_filepath = self.dbt_manifest_filepath #"_marketing/target/manifest.json" #"C:/Users/GuntherMeert/Downloads/manifest.json"
+        local_filepath = self.dbt_manifest_filepath
         with open(local_filepath) as f:
             data = json.load(f)
 
