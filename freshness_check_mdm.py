@@ -28,7 +28,7 @@ with DAG(
 
     bash = BashOperator(
         task_id="bash",
-        bash_command="echo dit is een parameter test: {{ params.message }} variable test: {DBT_PROJECT_DIR}",
+        bash_command="echo dit is een parameter test: {{ params.freshness_hours }}",
         dag=dag,
     )
 
