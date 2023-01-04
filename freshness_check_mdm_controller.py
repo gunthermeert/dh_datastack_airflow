@@ -24,7 +24,6 @@ with DAG(
         trigger_dag_id="freshness_check_mdm_controller",
         conf={'message': 'data'},
         wait_for_completion=True,
-        trigger_rule='all_failed',  # only if the first freshness task failed
         dag=dag,
     )
 
