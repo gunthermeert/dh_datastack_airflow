@@ -16,7 +16,7 @@ DBT_PROFILES_DIR = os.getenv('DBT_PROFILES_DIR') # DBT_PROFILES_DIR = /dh_datast
 DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
 DBT_MANIFEST_FILEPATH = "/home/gunther/dh_datastack_dbt/dh_datastack_marketing/target/manifest.json"
-DBT_MODEL_RUN = "model.dh_datastack_marketing.stg_dh_datastack_mdm__customers" #"model.dh_datastack.int_finance__product_sales" #"model.dh_datastack.stg_dh_shop__customers"
+DBT_MODEL_RUN = "model.dh_datastack_marketing.marketing_campaigns" #"model.dh_datastack_marketing.stg_dh_datastack_mdm__customers"
 
 with DAG(
     dag_id='poc_customer_freshness',
