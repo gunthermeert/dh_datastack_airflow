@@ -12,7 +12,7 @@ with DAG(
     description='dbt dag that builds an airflow dag dynamically by reading manifest',
     schedule_interval="0 10 * * *",
     params={
-            "freshness_hours": Param("1", type="string"),
+        "model_run": Param("all", type="string"),
     },
     max_active_runs=1,
     catchup=False
@@ -24,7 +24,7 @@ with DAG(
         task_id="freshness_check",
         bash_command=f"""
         cd /home/gunther/dh_datastack_dbt/dh_datastack_mdm &&
-        dbt source freshness --select source:mdm_freshness_{{ params.freshness_hours }}_hour.CUSTOMERS 
+        dbt source freshness --select source:mdm_freshness_{{ params.model_run }}_hour.CUSTOMERS 
         """,
         dag=dag,
     )
@@ -43,7 +43,7 @@ with DAG(
         task_id="freshness_check_validation",
         bash_command=f"""
         cd /home/gunther/dh_datastack_dbt/dh_datastack_mdm &&
-        dbt source freshness --select source:mdm_freshness_{{ params.freshness_hours }}_hour.CUSTOMERS
+        dbt source freshness --select source:mdm_freshness_{{ params.model_run }}_hour.CUSTOMERS
         """,
         dag=dag,
     )
