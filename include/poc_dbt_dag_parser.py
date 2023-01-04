@@ -209,7 +209,7 @@ class DbtDagParser:
             if len(self.dbt_nodes[node]["freshness_dependency"]) > 0:
                 airflow_operators[self.dbt_nodes[node]["freshness_dependency"]] = self.make_dbt_task(self.dbt_nodes[node]["freshness_dependency"], "source", "")
                 airflow_operators[f'{self.dbt_nodes[node]["freshness_dependency"]}_validation'] = self.make_dbt_task(f'{self.dbt_nodes[node]["freshness_dependency"]}_validation', "source", "")
-                airflow_operators[f'{self.dbt_nodes[node]["freshness_dependency"]}_refresh'] = self.make_dbt_task(f'{self.dbt_nodes[node]["freshness_dependency"]}_refresh', "refresh", "")
+                airflow_operators[f'{self.dbt_nodes[node]["freshness_dependency"]}'] = self.make_dbt_task(f'{self.dbt_nodes[node]["freshness_dependency"]}', "refresh", "")
 
         #after creating the bash operators we must determine the scheduling order of the operators
         for node in self.dbt_nodes:
