@@ -15,7 +15,8 @@ with DAG(
     schedule_interval="0 10 * * *",
         params={
             "freshness_hours": "1",
-            "freshness_table": "CUSTOMERS"
+            "freshness_table": "CUSTOMERS",
+            "freshness_table_lowercase": "customers"
         },
     max_active_runs=1,
     catchup=False
