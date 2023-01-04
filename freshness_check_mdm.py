@@ -33,10 +33,7 @@ with DAG(
     # number "1" and text "CUSTOMERS" should be variables
     freshness_check = BashOperator(
         task_id="freshness_check",
-        bash_command=f"""
-        cd /home/gunther/dh_datastack_dbt/dh_datastack_mdm &&
-        dbt source freshness --select source:mdm_freshness_{{ params.param1 }}_hour.CUSTOMERS 
-        """,
+        bash_command="cd /home/gunther/dh_datastack_dbt/dh_datastack_mdm && dbt source freshness --select source:mdm_freshness_{{ params.param1 }}_hour.CUSTOMERS ",
         dag=dag,
     )
 
