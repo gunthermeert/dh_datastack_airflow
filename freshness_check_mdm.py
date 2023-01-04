@@ -6,18 +6,29 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.models.param import Param
 
 
+
+
 with DAG(
     dag_id='freshness_check_mdm',
     start_date=datetime(2022, 11, 7),
     description='dbt dag that builds an airflow dag dynamically by reading manifest',
     schedule_interval="0 10 * * *",
-    params={
-        "model_run": Param("all", type="string"),
-    },
+        params={
+            "param1": "value1",
+            "param2": "value2"
+        },
     max_active_runs=1,
     catchup=False
 ) as dag:
     start_dummy = DummyOperator(task_id="start")
+
+    bash = BashOperator(
+        task_id='bash',
+        bash_command='echo {{ params.param1 }}',  # Output: value1
+        dag=dag
+    )
+
+
 
     # number "1" and text "CUSTOMERS" should be variables
     freshness_check = BashOperator(
@@ -51,5 +62,5 @@ with DAG(
 
     end_dummy = DummyOperator(task_id="end", trigger_rule="one_success")
 
-    start_dummy >> freshness_check >> end_dummy
-    start_dummy >> freshness_check >> refresh_trigger >> freshness_check_validation >> end_dummy
+    bash >> start_dummy >> freshness_check >> end_dummy
+    bash >> start_dummy >> freshness_check >> refresh_trigger >> freshness_check_validation >> end_dummy
