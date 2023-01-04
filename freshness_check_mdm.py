@@ -14,8 +14,8 @@ with DAG(
     description='dbt dag that builds an airflow dag dynamically by reading manifest',
     schedule_interval="0 10 * * *",
         params={
-            "param1": "value1",
-            "param2": "value2"
+            "freshness_hours": "1",
+            "freshness_table": "CUSTOMERS"
         },
     max_active_runs=1,
     catchup=False
@@ -33,14 +33,14 @@ with DAG(
     # number "1" and text "CUSTOMERS" should be variables
     freshness_check = BashOperator(
         task_id="freshness_check",
-        bash_command="cd /home/gunther/dh_datastack_dbt/dh_datastack_mdm && dbt source freshness --select source:mdm_freshness_{{ params.param1 }}_hour.CUSTOMERS ",
+        bash_command="cd /home/gunther/dh_datastack_dbt/dh_datastack_mdm && dbt source freshness --select source:mdm_freshness_{{ params.freshness_hours }}_hour.{{ params.freshness_table }}",
         dag=dag,
     )
 
     # customers should be a variable
     refresh_trigger = TriggerDagRunOperator(
         task_id="refresh_trigger",
-        trigger_dag_id="refresh_dh_datastack_mdm_customers",
+        trigger_dag_id="refresh_dh_datastack_mdm_{{ params.freshness_table }}",
         wait_for_completion=True,
         trigger_rule='all_failed',  # only if the first freshness task failed
         dag=dag,
@@ -49,10 +49,7 @@ with DAG(
     # number "1" and text "CUSTOMERS" should be variables
     freshness_check_validation = BashOperator(
         task_id="freshness_check_validation",
-        bash_command=f"""
-        cd /home/gunther/dh_datastack_dbt/dh_datastack_mdm &&
-        dbt source freshness --select source:mdm_freshness_{{ params.model_run }}_hour.CUSTOMERS
-        """,
+        bash_command="cd /home/gunther/dh_datastack_dbt/dh_datastack_mdm && dbt source freshness --select source:mdm_freshness_{{ params.freshness_hours }}_hour.{{ params.freshness_table }}",
         dag=dag,
     )
 
