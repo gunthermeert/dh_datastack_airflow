@@ -222,7 +222,7 @@ class DbtDagParser:
                     for dependency in node_dependencies:
                         if "source." in dependency:
                             airflow_operators[dependency] >> airflow_operators[node]
-                            airflow_operators[dependency] >> airflow_operators[f'{dependency}_refresh'] >> airflow_operators[node]
+                            airflow_operators[dependency] >> airflow_operators[f'{dependency}_refresh'] >> airflow_operators[dependency] >> airflow_operators[node]
                         else:
                             airflow_operators[dependency] >> airflow_operators[node]
 
