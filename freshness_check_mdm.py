@@ -22,22 +22,12 @@ with DAG(
 ) as dag:
     start_dummy = DummyOperator(task_id="start")
 
-    bash = BashOperator(
-        task_id='bash',
-        bash_command='echo {{ params.param1 }}',  # Output: value1
-        dag=dag
-    )
-
-
-
-    # number "1" and text "CUSTOMERS" should be variables
     freshness_check = BashOperator(
         task_id="freshness_check",
         bash_command="cd /home/gunther/dh_datastack_dbt/dh_datastack_mdm && dbt source freshness --select source:mdm_freshness_{{ params.freshness_hours }}_hour.{{ params.freshness_table }}",
         dag=dag,
     )
 
-    # customers should be a variable
     refresh_trigger = TriggerDagRunOperator(
         task_id="refresh_trigger",
         trigger_dag_id="refresh_dh_datastack_mdm_{{ params.freshness_table }}",
@@ -46,7 +36,6 @@ with DAG(
         dag=dag,
     )
 
-    # number "1" and text "CUSTOMERS" should be variables
     freshness_check_validation = BashOperator(
         task_id="freshness_check_validation",
         bash_command="cd /home/gunther/dh_datastack_dbt/dh_datastack_mdm && dbt source freshness --select source:mdm_freshness_{{ params.freshness_hours }}_hour.{{ params.freshness_table }}",
@@ -56,5 +45,5 @@ with DAG(
 
     end_dummy = DummyOperator(task_id="end", trigger_rule="one_success")
 
-    bash >> start_dummy >> freshness_check >> end_dummy
-    bash >> start_dummy >> freshness_check >> refresh_trigger >> freshness_check_validation >> end_dummy
+    start_dummy >> freshness_check >> end_dummy
+    start_dummy >> freshness_check >> refresh_trigger >> freshness_check_validation >> end_dummy
