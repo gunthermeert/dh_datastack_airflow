@@ -22,7 +22,7 @@ with DAG(
     trigger = TriggerDagRunOperator(
         task_id="refresh_trigger",
         trigger_dag_id="freshness_check_mdm",
-        conf={'message': 'data'},
+        conf={'freshness_hours': '6'},
         wait_for_completion=True,
         dag=dag,
     )
