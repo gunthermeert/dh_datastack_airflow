@@ -5,6 +5,8 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.utils.dates import datetime
 from include.dbt_dag_parser import DbtDagParser
+from airflow.utils.task_group import TaskGroup
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
 # We're hardcoding these values here for the purpose of the demo, but in a production environment these
 # would probably come from a config file and/or environment variables!
@@ -36,6 +38,33 @@ with DAG(
             dag=dag,
     )
 
+    # Start task group freshness checks
+    with TaskGroup(group_id='freshness_checks_other_domains') as freshness_checks:
+        freshness_check_mdm_customers = TriggerDagRunOperator(
+            task_id="freshness_check_mdm_customers",
+            trigger_dag_id="freshness_check_mdm",
+            conf={'freshness_hours': '1', 'freshness_table': 'CUSTOMERS', 'freshness_table_lowercase': 'customers'},
+            wait_for_completion=True,
+            dag=dag,
+        )
+        freshness_check_mdm_products = TriggerDagRunOperator(
+            task_id="freshness_check_mdm_products",
+            trigger_dag_id="freshness_check_mdm",
+            conf={'freshness_hours': '1', 'freshness_table': 'PRODUCTS', 'freshness_table_lowercase': 'products'},
+            wait_for_completion=True,
+            dag=dag,
+        )
+
+        freshness_check_finance_daily_product_sales = TriggerDagRunOperator(
+            task_id="freshness_check_finance_daily_product_sales",
+            trigger_dag_id="freshness_check_finance",
+            conf={'freshness_hours': '1', 'freshness_table': 'DAILY_PRODUCT_SALES', 'freshness_table_lowercase': 'daily_product_sales'},
+            wait_for_completion=True,
+            dag=dag,
+        )
+
+    # End task group definition
+
     # The parser parses out a dbt manifest.json file and dynamically creates tasks for "dbt run", "dbt snapshot", "dbt seed" and "dbt test"
     # commands for each individual model. It groups them into task groups which we can retrieve and use in the DAG.
     dag_parser = DbtDagParser(
@@ -52,4 +81,4 @@ with DAG(
 
     end_dummy = DummyOperator(task_id="end")
 
-    start_dummy >> dbt_source_test >> dbt_run_group >> end_dummy
+    start_dummy >> dbt_source_test >> freshness_checks >> dbt_run_group >> end_dummy
