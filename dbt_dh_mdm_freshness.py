@@ -1,4 +1,5 @@
 from airflow import DAG
+from airflow.utils.dates import datetime
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
@@ -6,6 +7,8 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 with DAG(
     dag_id='dbt_dh_mdm_freshness',
     description='DAG that is able to check the freshness and retrigger MDM loads',
+    start_date=datetime(2022, 1, 1),
+    catchup=False,
         params={
             "freshness_hours": "1",
             "freshness_table": "CUSTOMERS",
