@@ -1,13 +1,10 @@
 import os
 from airflow import DAG
 from airflow.models.param import Param
-from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
-from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.utils.dates import datetime
 from include.dbt_dag_parser import DbtDagParser
-from airflow.decorators import dag, task
 
 # We're hardcoding these values here for the purpose of the demo, but in a production environment these
 # would probably come from a config file and/or environment variables!
@@ -16,12 +13,12 @@ DBT_PROFILES_DIR = os.getenv('DBT_PROFILES_DIR') # DBT_PROFILES_DIR = /dh_datast
 DBT_GLOBAL_CLI_FLAGS = "--no-write-json"
 DBT_TARGET = os.getenv('DBT_TARGET')# DBT_TARGET = dev
 DBT_MANIFEST_FILEPATH = "/home/gunther/dh_datastack_dbt/dh_datastack_marketing/target/manifest.json"
-DBT_MODEL_RUN = "model.dh_datastack_marketing.marketing_campaigns" #"all"
+DBT_MODEL_RUN = "model.dh_datastack_marketing.marketing_campaigns" #"all" choose a specific model or "all" to trigger dbt_dag_parser
 
 with DAG(
     dag_id='dbt_dh_datastack_marketing_campaigns',
     start_date=datetime(2022, 11, 7),
-    description='dbt dag that builds an airflow dag dynamically by reading manifest',
+    description='dbt dag that runs dbt dbt_dh_datastack_marketing_campaigns model and the dependencies',
     schedule_interval="0 10 * * *",
     max_active_runs=1,
     catchup=False

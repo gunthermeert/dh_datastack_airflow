@@ -1,6 +1,10 @@
 import json
+import logging
+import os
+import subprocess
 from airflow.operators.bash import BashOperator
 from airflow.utils.task_group import TaskGroup
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
 
 class DbtDagParser:
@@ -144,9 +148,15 @@ class DbtDagParser:
             if node_resource_type == "seed":
                 DBT_COMMAND = "seed"
 
+            if len(freshness_dependency) > 0:
+                trigger_rule_setting = 'one_success' # when there is a freshness check task we will either follow the refresh flow or if the freshness task succeeded
+            else:
+                trigger_rule_setting = 'all_success'
+
             dbt_task = BashOperator(
                 task_id=node_name,
                 task_group=self.dbt_run_group,
+                trigger_rule=trigger_rule_setting,
                 bash_command=f"""
                 cd {self.dbt_project_dir} &&
                 dbt {self.dbt_global_cli_flags} {DBT_COMMAND} --target dev --select {node_name} &&
@@ -160,6 +170,7 @@ class DbtDagParser:
 
             source_freshness = node_name.split(".")[-2] + '.' + node_name.split(".")[-1]  # we only want the source + modelname
             task_id_name = f'freshness_check_{source_freshness}'
+            source_freshness = source_freshness.replace("_validation", "") # after a refresh is triggered we want to do the same freshness check, which is triggered by adding _validation to the task_id, but the dbt command needs it without _validation
 
             dbt_task = BashOperator(
                 task_id=task_id_name,
@@ -168,6 +179,23 @@ class DbtDagParser:
                 cd {self.dbt_project_dir} &&
                 dbt source freshness --select source:{source_freshness}
                 """,
+                dag=self.dag,
+            )
+
+        # if a freshness check fails we have to trigger another dag to refresh it's data
+        if node_resource_type == "refresh":
+
+           source_freshness = node_name.split(".")[-2] + '.' + node_name.split(".")[-1]  # we only want the source + modelname
+           task_id_name = f'refresh_{source_freshness}'
+
+           dag_id_name = task_id_name.replace(".", "_").lower()
+
+           dbt_task = TriggerDagRunOperator(
+                task_id=task_id_name,
+                task_group=self.dbt_run_group,
+                trigger_dag_id=dag_id_name,
+                wait_for_completion=True,
+                trigger_rule='all_failed', #only if the first freshness task failed
                 dag=self.dag,
             )
 
@@ -189,9 +217,11 @@ class DbtDagParser:
         for node in self.dbt_nodes:
             airflow_operators[node] = self.make_dbt_task(self.dbt_nodes[node]["node_name"], self.dbt_nodes[node]["node_resource_type"], self.dbt_nodes[node]["freshness_dependency"])
 
-            #if a freshness check is required we create 1 more task, being a freshness check task
+            #if a freshness check is required we create 3 more tasks, being a freshness check task, refresh task in case the freshness task failed and a freshness check task after a refresh has run "_validation"
             if len(self.dbt_nodes[node]["freshness_dependency"]) > 0:
                 airflow_operators[self.dbt_nodes[node]["freshness_dependency"]] = self.make_dbt_task(self.dbt_nodes[node]["freshness_dependency"], "source", "")
+                airflow_operators[f'{self.dbt_nodes[node]["freshness_dependency"]}_validation'] = self.make_dbt_task(f'{self.dbt_nodes[node]["freshness_dependency"]}_validation', "source", "")
+                airflow_operators[f'{self.dbt_nodes[node]["freshness_dependency"]}_refresh'] = self.make_dbt_task(f'{self.dbt_nodes[node]["freshness_dependency"]}', "refresh", "")
 
         #after creating the bash operators we must determine the scheduling order of the operators
         for node in self.dbt_nodes:
@@ -203,6 +233,12 @@ class DbtDagParser:
                     airflow_operators[node]
                 else:
                     for dependency in node_dependencies:
+                        # when there are refresh tasks needed we will have to add a refresh flow in case it's needed
+                        if "source." in dependency:
+                            airflow_operators[dependency] >> airflow_operators[node]
+                            airflow_operators[dependency] >> airflow_operators[f'{dependency}_refresh'] >> airflow_operators[f'{dependency}_validation'] >> airflow_operators[node]
+                        # when there isn't a refresh task needed but simply normal dependencies
+                        else:
                             airflow_operators[dependency] >> airflow_operators[node]
 
     def get_dbt_run_group(self):
