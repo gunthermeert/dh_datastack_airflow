@@ -42,14 +42,14 @@ with DAG(
     with TaskGroup(group_id='freshness_checks_other_domains') as freshness_checks:
         freshness_check_mdm_customers = TriggerDagRunOperator(
             task_id="freshness_check_mdm_customers",
-            trigger_dag_id="freshness_check_mdm",
+            trigger_dag_id="dbt_dh_mdm_freshness",
             conf={'freshness_hours': '1', 'freshness_table': 'CUSTOMERS', 'freshness_table_lowercase': 'customers'},
             wait_for_completion=True,
             dag=dag,
         )
         freshness_check_mdm_products = TriggerDagRunOperator(
             task_id="freshness_check_mdm_products",
-            trigger_dag_id="freshness_check_mdm",
+            trigger_dag_id="dbt_dh_mdm_freshness",
             conf={'freshness_hours': '1', 'freshness_table': 'PRODUCTS', 'freshness_table_lowercase': 'products'},
             wait_for_completion=True,
             dag=dag,
@@ -57,7 +57,7 @@ with DAG(
 
         freshness_check_finance_daily_product_sales = TriggerDagRunOperator(
             task_id="freshness_check_finance_daily_product_sales",
-            trigger_dag_id="freshness_check_finance",
+            trigger_dag_id="dbt_dh_finance_freshness",
             conf={'freshness_hours': '1', 'freshness_table': 'DAILY_PRODUCT_SALES', 'freshness_table_lowercase': 'daily_product_sales'},
             wait_for_completion=True,
             dag=dag,
